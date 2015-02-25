@@ -1,17 +1,20 @@
 package App;
 
+import java.io.File;
+
 import RBA.RBA;
 
 public class RoadTrainApp {
 	boolean isTruck;
 	int id;
 	RBA rba;
+	File configFile;
 		
-	public RoadTrainApp(boolean isTruck, int id, int port){
+	public RoadTrainApp(boolean isTruck, int id, int port, File configFile){
 		this.isTruck = isTruck;
 		this.id = id;
 		try{
-			rba = new RBA(id, port);
+			rba = new RBA(id, port, configFile);
 		} catch (Exception e){
 			
 		}

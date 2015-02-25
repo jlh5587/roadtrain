@@ -1,5 +1,6 @@
 package RBA;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -17,14 +18,15 @@ public class RBA {
 	int currentSeqNum, currentLastHop, currentTimesForwarded, currentUser, currentSender, numMessageCreated = 1;
 	DatagramSocket socket;
 	boolean listen;
+	File configFile;
 	
 	
-	public RBA(int currentUser, int port) throws SocketException{
+	public RBA(int currentUser, int port, File configFile) throws SocketException{
 		this.currentUser = currentUser;
 		cache = new ArrayList<TableEntry>();
-
 		socket = new DatagramSocket(port);
 		listen = true;
+		this.configFile = configFile;
 	}
 	
 	
@@ -57,9 +59,9 @@ public class RBA {
 	
 	
 	//loops to listen for a message. 
-	public void listenForMessage(){
+	public String listenForMessage(){
 		byte[] recieved = new byte[4096];
-		while(listen){
+		//while(listen){
 			DatagramPacket receivePacket = new DatagramPacket(recieved, recieved.length);
             try {
 				socket.receive(receivePacket);
@@ -72,7 +74,9 @@ public class RBA {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		//}
+            
+            return currentMessage;
 	}
 	
 	
@@ -178,6 +182,10 @@ public class RBA {
 	
 	public void setListen(boolean listen){
 		this.listen = listen;
+	}
+	
+	public void closeSocket(){
+		socket.close();
 	}
 	
 }
