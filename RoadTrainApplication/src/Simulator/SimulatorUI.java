@@ -1,8 +1,5 @@
 package Simulator;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 
 /**
@@ -24,6 +21,7 @@ public class SimulatorUI {
             }
             System.out.print("\n");
         }
+        System.out.println("--------------------------------------");
     }
 
 
