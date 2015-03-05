@@ -7,6 +7,7 @@ import java.util.ArrayList;
  * Author: Carlos Lemus
  * Created on 2/27/2015
  */
+
 public class Simulator {
 
     static SimulatorEngine seng;
@@ -40,7 +41,7 @@ public class Simulator {
             vvnList = updateNodes();
             simUI.update_ui(vvnList);
             try {
-                Thread.sleep(1000);
+                Thread.sleep(update_interval);
             } catch (InterruptedException ex) {
                 // do nothing because YOLO
             }
