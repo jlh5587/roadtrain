@@ -1,6 +1,7 @@
 package RBA;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -10,6 +11,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
+
+import pangolin.compID;
 
 
 public class RBA {
@@ -102,15 +105,26 @@ public class RBA {
 		 byte[] sendData = new byte[4096];
 		 sendData = packetInfo.getBytes();
 		 
-		 //For testing purposes. These IP addresses will need to come from the config file.
-		 InetAddress IPAddress;
-		try {
-			IPAddress = InetAddress.getByName("localhost");
-			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 9876);
-			socket.send(sendPacket);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		 ArrayList<Integer> forwardConn = findForwardConnections();
+		 String compName = "localhost";
+		 int port = 9876;
+		 
+		 for(int i = 0; i<forwardConn.size();i++){
+		 
+			 compID c = compInfo(forwardConn.get(i));
+			 compName = c.getName();
+			 port = c.getPort();
+			
+			 //For testing purposes. These IP addresses will need to come from the config file.
+			InetAddress IPAddress;
+			try {
+				IPAddress = InetAddress.getByName(compName);
+				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+				socket.send(sendPacket);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		 
 		 
@@ -186,6 +200,107 @@ public class RBA {
 	
 	public void closeSocket(){
 		socket.close();
+	}
+	
+	public ArrayList<Integer> findForwardConnections(){
+		ArrayList<Integer> toForward = new ArrayList<Integer>();
+		
+		Scanner scanFile;
+		try {
+			scanFile = new Scanner(configFile);
+			
+			while(scanFile.hasNext()){
+				String line = scanFile.nextLine();
+				
+				Scanner scanLine = new Scanner(line);
+				
+				if(scanLine.next().equals("Node")){
+					int car = scanLine.nextInt();
+					
+					if(car == currentUser){
+						System.out.println("user match");
+						
+						while(scanLine.hasNext()){
+							if(scanLine.next().equals("links")){
+								while(scanLine.hasNext()){
+									toForward.add(scanLine.nextInt());
+								}
+							}
+						}
+					}
+				}
+				
+				
+				scanLine.close();
+			}
+			
+			scanFile.close();
+			
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return toForward;
+		
+	}
+	
+	public compID compInfo(int id){
+		String compNm = "";
+		Scanner scanFile;
+		try {
+			scanFile = new Scanner(configFile);
+			
+			while(scanFile.hasNext()){
+				String line = scanFile.nextLine();
+				
+				Scanner scanLine = new Scanner(line);
+				
+				if(scanLine.next().equals("Node")){
+					int car = scanLine.nextInt();
+					
+					if(car == id){
+						compNm = scanLine.next();
+						int port = scanLine.nextInt();
+						scanLine.close();
+						
+						
+						return (new compID(compNm.substring(0,compNm.length()-1), port));
+						
+					}
+					
+				}
+				scanLine.close();
+			}
+			
+			scanFile.close();
+		}catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+		}
+		return null;
+	}
+
+}
+
+
+
+class compID{
+	String compName;
+	int port;
+	
+	public compID(String compName, int port){
+		this.compName = compName;
+		this.port = port;
+	}
+	
+	public String getName(){
+		return compName;
+	}
+	
+	public int getPort(){
+		return port;
 	}
 	
 }
