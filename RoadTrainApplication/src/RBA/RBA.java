@@ -270,7 +270,7 @@ public class RBA {
 						scanLine.close();
 						
 						
-						return (new compID(compNm.substring(0,compNm.length()-1), port));
+						return (new compID(compNm, port));
 						
 					}
 					
