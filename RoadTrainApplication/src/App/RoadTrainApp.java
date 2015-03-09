@@ -317,7 +317,7 @@ public class RoadTrainApp {
 	
 	public String listen()
 	{
-		return rba.getMessage();
+		return rba.getCurrentMessage();
 	}
 	
 	public void talk(String msg)
