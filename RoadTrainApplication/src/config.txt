@@ -1,1 +1,10 @@
-9876
+Truck tux178 10100 0 0 links Car_1 
+Car_1 tux178 10101 1000 0 links Truck Car_2
+Car_2 tux178 10102 2000 1 links Car_1 Car_3 Truck
+Car_3 tux178 10103 2000 0 links Car_2 Car_4 Truck
+Car_4 tux178 10104 9999 0 links Car_3 Car_5 
+Car_5 tux178 10105 4000 1 links Car_4 Car_6
+Car_6 tux178 10106 5000 0 links Car_5 Car_7 Car_8
+Car_7 tux178 10107 5000 1 links Car_6 Car_8 Car_5
+Car_8 tux178 10108 6000 1 links Car_7 Car_9
+Car_9 tux178 10109 7000 0 links Car_8
