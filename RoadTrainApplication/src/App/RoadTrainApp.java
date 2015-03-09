@@ -24,7 +24,7 @@ public class RoadTrainApp {
 		this.port = port;
 		try{
 			this.setConfigFilePosition();
-			rba = new RBA(this.id, port);
+			rba = new RBA(this.id, port, config);
 		} catch (Exception e){
 		}
 	}
@@ -318,12 +318,12 @@ public class RoadTrainApp {
 	
 	public String listen()
 	{
-		return rba.getMessage();
+		return rba.getCurrentMessage();
 	}
 	
 	public void talk(String msg)
 	{
-		rba.sendMessage(msg);
+		rba.broadcast(msg);
 	}
 }
 
