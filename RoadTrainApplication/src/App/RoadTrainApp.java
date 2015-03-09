@@ -48,9 +48,6 @@ public class RoadTrainApp {
 	
 	public void ignition(boolean isTruck) throws IOException
 	{
-		Thread message = new Thread((Runnable) this.rba);
-		message.start();
-		
 		if(isTruck)
 		{
 			Thread drive = new Thread((Runnable) this.truck);
