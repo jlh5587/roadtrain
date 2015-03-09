@@ -1,4 +1,4 @@
-package Simulator;
+//package Simulator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,7 +31,11 @@ public class SimulatorUI extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        int currentYPos = FRAME_HEIGHT/3;
+	int initialYPos = FRAME_HEIGHT/3;
+
+	System.out.println("Initial Y: " + initialYPos);
+
+        int currentYPos = initialYPos;
         int currentXPos = FRAME_WIDTH/2;
         int frontPos = 0;
 
@@ -40,14 +44,15 @@ public class SimulatorUI extends JPanel {
         for (VirtualVanetNode vvn : nodeList) {
             if (vvn.nodeIndex == 1) {
                 frontPos = vvn.y;
-                System.out.print("Front node position: " + frontPos);
+                System.out.println("Front node position: " + frontPos);
             }
-
-            currentYPos += (vvn.y - frontPos);
+	//Current position is initial Y position plus difference with front node
+		System.out.println("vvn.y - frontPos = " + (vvn.y - frontPos));
+            currentYPos = initialYPos + vvn.y - frontPos;
+		System.out.println("currentYPos = " + (currentYPos));
             g.fillOval(currentXPos, currentYPos, 10, 10);
 
-            System.out.print("\nDrawing " + vvn.nodeIndex + " " + vvn.y);
-            System.out.print(" at " + (vvn.y - frontPos) + "\n\n");
+            System.out.println("\nDrawing " + vvn.nodeIndex + " @ " + currentYPos);
         }
     }
 
