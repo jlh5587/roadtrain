@@ -182,9 +182,13 @@ public class RBA {
 		byte[] send = new byte[4096];
 		send = newPacket.getBytes();
 		
+		compID c = compInfo(reciever);
+		String name = c.getName();
+		int port = c.getPort();
+		
 		try {
-			InetAddress IPAddress = InetAddress.getByName("localhost");
-			DatagramPacket sendPacket = new DatagramPacket(send, send.length, IPAddress, 9876);
+			InetAddress IPAddress = InetAddress.getByName(name);
+			DatagramPacket sendPacket = new DatagramPacket(send, send.length, IPAddress, port);
 			socket.send(sendPacket);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
