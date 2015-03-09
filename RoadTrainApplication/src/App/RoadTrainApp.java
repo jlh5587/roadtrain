@@ -90,9 +90,10 @@ public class RoadTrainApp {
 		{
 		Thread drive = new Thread((Runnable) this.car);
 		drive.start();
-		while(!this.joinTrain())
+		while(!this.joined_Train)
 		{
 			String msg = this.listen();
+			System.out.println(msg);
 			String[] buf = msg.substring(1, msg.length() - 1).split("~");
 			if(Integer.parseInt(buf[buf.length - 3]) < 100)
 			{
