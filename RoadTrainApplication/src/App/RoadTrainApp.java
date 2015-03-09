@@ -132,7 +132,7 @@ public class RoadTrainApp {
 			}
 			else if(buf[0].equals("Joined") && this.car.truck != null)
 			{
-				Car head = new Car(buf[1]);
+				Car head = new Car(Integer.parseInt(buf[1]));
 				this.car.head = head;
 				this.car.truck = null;
 			}
@@ -149,12 +149,12 @@ public class RoadTrainApp {
 				this.car.speed = 40;
 				if(buf[2].equals("Truck"))
 				{
-					Truck trans = new Truck(buf[2]);
+					Truck trans = new Truck(Integer.parseInt(buf[2]));
 					this.car.truck = trans;
 				}
 				else
 				{
-					Car trans = new Car(buf[2]);
+					Car trans = new Car(Integer.parseInt(buf[2]));
 					this.car.head = trans;
 				}
 			}
