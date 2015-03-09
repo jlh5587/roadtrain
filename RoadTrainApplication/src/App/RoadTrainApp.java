@@ -25,7 +25,7 @@ public class RoadTrainApp {
 		this.id = id;
 		this.port = port;
 		try{
-			rba = new RBA(id, port);
+			rba = new RBA(id, port, config);
 		} catch (Exception e){
 		}
 	}
