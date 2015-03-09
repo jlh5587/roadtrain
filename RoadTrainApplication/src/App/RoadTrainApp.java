@@ -53,8 +53,6 @@ public class RoadTrainApp {
 		
 		if(this.id == 0)
 		{
-			Thread drive = new Thread((Runnable) this.truck);
-			drive.start();
 			while(true)
 			{
 				String msg = this.listen();
