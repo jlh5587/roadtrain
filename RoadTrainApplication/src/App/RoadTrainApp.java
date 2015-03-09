@@ -70,14 +70,14 @@ public class RoadTrainApp {
 				
 				else if(buffer_message[0].equals("Joined"))
 				{
-					this.truck.tail = new Car(buffer_message[1]);
+					this.truck.tail = new Car(Integer.parseInt(buffer_message[1]));
 				}
 				else if(buffer_message[0].equals("Dueces"))
 				{
 					this.talk("GoodBye~" + buffer_message[1]);
 					if(buffer_message[1].equals(this.truck.id))
 					{
-						this.truck.tail = new Car(buffer_message[3]);
+						this.truck.tail = new Car(Integer.parseInt(buffer_message[3]));
 					}
 				}
 				else
@@ -319,7 +319,7 @@ public class RoadTrainApp {
 	
 	public void talk(String msg)
 	{
-		rba.broadCast(msg);
+		rba.broadcast(msg);
 	}
 }
 
