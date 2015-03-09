@@ -11,16 +11,16 @@ import Vehicle.Truck;
 import RBA.RBA;
 
 public class RoadTrainApp {
-	int port, position;
+	int port, position, id;
 	RBA rba;
 	Truck truck;
 	Car car;
-	String config_name = "", id = "";
+	String config_name = "";
 	File config_File = null;
 	boolean joined_Train = false;
 		
-	public RoadTrainApp(boolean isTruck, String id, int port, File config){
-		setVehicle(isTruck);
+	public RoadTrainApp(int id, int port, File config){
+		setVehicle(id == 0);
 		this.config_File = config;
 		this.id = id;
 		this.port = port;
@@ -100,7 +100,7 @@ public class RoadTrainApp {
 			{
 				this.talk("Enter~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
 			}
-			if(buf[0].equals("Granted") && buf[buf.length - 1].equals(this.id))
+			if(buf[0].equals("Granted") && Integer.getInteger(buf[buf.length - 1]) == this.id)
 			{
 				this.joinTrain();
 			}
@@ -158,13 +158,11 @@ public class RoadTrainApp {
 					this.car.head = trans;
 				}
 			}
-			else if((buf[buf.length() - 5].equals(this.car.head.id) && this.truck == null) 
-			|| (buf[buf.length() - 5].equals(this.truck.id))
-			{
+			else if(buf[msg.length() - 5].equals(this.car.id)){
 			this.car.speed = Integer.parseInt(buf[buf.length - 1]);
 			this.talk(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
-		}
-		}
+			}	
+			}
 		}
 	}
 
@@ -203,7 +201,7 @@ public class RoadTrainApp {
 		{
 			String msg = this.listen();
 			String[] buf = msg.substring(1, msg.length() - 1).split("~");
-			if(buf[0].equals("GoodBye") && buf[1].equals(this.id))
+			if(buf[0].equals("GoodBye") && Integer.parseInt(buf[1]) == this.id)
 			{
 			break;
 			}
@@ -306,7 +304,7 @@ public class RoadTrainApp {
 			}
 			else
 			{
-				if (buffer != "" && buffer.substring(0, 5).equals(this.id))
+				if (buffer != "" && Integer.parseInt(buffer.substring(0, 1)) == this.id)
 				{
 					break;
 				}
