@@ -1,38 +1,32 @@
 package Vehicle;
 
-import java.io.File;
+public class Truck implements Vehicle, Runnable {
+	public int speed = 0;
+	public int[] location = {0,0};
+	public int port = 0;
+	public Car tail = null;
+	public String id = "";
 
-import App.RoadTrainApp;
-
-public class Truck implements Vehicle {
-	
-	private int id, port;
-	RoadTrainApp app;
-	File configFile;
-	
-	public Truck(int id, int port, File configFile){
+	public Truck(String id, int port){
 		this.id = id;
 		this.port = port;
-		this.configFile = configFile;
-		startApp();
 	}
 	
-	@Override
-	public void startApp() {
-		// TODO Auto-generated method stub
-		app = new RoadTrainApp(true, id, port, configFile);
+	public Truck(String id){
+		this.id = id;
 	}
-
-	@Override
-	public void joinTrain() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void leaveTrain() {
-		// TODO Auto-generated method stub
-
+	public void run() {
+		while (true)
+		{
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			location[0] += speed;
+		}
+		
 	}
 
 }
