@@ -218,7 +218,7 @@ public class RBA {
 				
 				Scanner scanLine = new Scanner(line);
 				
-				if(scanLine.next().equals("Node")){
+				
 					int car = scanLine.nextInt();
 					
 					if(car == currentUser){
@@ -232,7 +232,7 @@ public class RBA {
 							}
 						}
 					}
-				}
+				
 				
 				
 				scanLine.close();
@@ -261,8 +261,8 @@ public class RBA {
 				
 				Scanner scanLine = new Scanner(line);
 				
-				if(scanLine.next().equals("Node")){
-					int car = scanLine.nextInt();
+				
+				int car = scanLine.nextInt();
 					
 					if(car == id){
 						compNm = scanLine.next();
@@ -274,7 +274,7 @@ public class RBA {
 						
 					}
 					
-				}
+				
 				scanLine.close();
 			}
 			
