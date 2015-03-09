@@ -31,52 +31,32 @@ public class SimulatorUI extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-	int initialYPos = FRAME_HEIGHT/3;
-
-	System.out.println("Initial Y: " + initialYPos);
-
-        int currentYPos = initialYPos;
-        int currentXPos = FRAME_WIDTH/2;
+        // settings for relative positioning
+        int initialXPos = FRAME_WIDTH / 3;
+        int currentXPos = initialXPos;
+        int currentYPos = FRAME_HEIGHT / 2;
         int frontPos = 0;
 
+        // make nodes green
         g.setColor(Color.green);
 
+        // draw all the nodes
         for (VirtualVanetNode vvn : nodeList) {
+            // if first node, this takes role of "front" node
             if (vvn.nodeIndex == 1) {
-                frontPos = vvn.y;
-                System.out.println("Front node position: " + frontPos);
+                frontPos = vvn.x;
             }
-	//Current position is initial Y position plus difference with front node
-		System.out.println("vvn.y - frontPos = " + (vvn.y - frontPos));
-            currentYPos = initialYPos + vvn.y - frontPos;
-		System.out.println("currentYPos = " + (currentYPos));
+            // current Y is relative to front node
+            currentXPos = initialXPos + vvn.x - frontPos;
             g.fillOval(currentXPos, currentYPos, 10, 10);
-
-            System.out.println("\nDrawing " + vvn.nodeIndex + " @ " + currentYPos);
         }
     }
 
     public void update_ui(ArrayList<VirtualVanetNode> nodeListIn) {
-
         // point internal node list to the new updated node list.
         this.nodeList = nodeListIn;
         // have it paint components based on the node list
         repaint();
-
-//
-//        for (VirtualVanetNode vvn : nodeList) {
-//            System.out.print("Node ");
-//            System.out.print(vvn.nodeIndex + " ");
-//            System.out.print(vvn.networkName);
-//            System.out.print(":");
-//            System.out.print(vvn.port);
-//            System.out.print(" links ");
-//            for (Integer i : vvn.links) {
-//                System.out.print(i);
-//            }
-//            System.out.print("\n");
-//        }
-//        System.out.println("--------------------------------------");
     }
 
 
