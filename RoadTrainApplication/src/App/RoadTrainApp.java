@@ -19,17 +19,17 @@ public class RoadTrainApp {
 	File config_File = null;
 	boolean joined_Train = false;
 		
-	public RoadTrainApp(int id, int port, File config){
-		setVehicle(id == 0);
+	public RoadTrainApp(int port, File config){
 		this.config_File = config;
-		this.id = id;
 		this.port = port;
 		try{
-			rba = new RBA(id, port, config);
+			this.setConfigFilePosition();
+			rba = new RBA(this.id, port);
 		} catch (Exception e){
 		}
 	}
 	
+
 	public void setVehicle(boolean isTruck)
 		{
 			if (isTruck)
@@ -46,9 +46,12 @@ public class RoadTrainApp {
 			
 		}
 	
-	public void ignition(boolean isTruck) throws IOException
+	public void ignition() throws IOException
 	{
-		if(isTruck)
+		Thread message = new Thread((Runnable) this.rba);
+		message.start();
+		
+		if(this.id == 0)
 		{
 			Thread drive = new Thread((Runnable) this.truck);
 			drive.start();
@@ -144,7 +147,7 @@ public class RoadTrainApp {
 							+ this.car.location[1] + "~" + this.car.speed);
 				}
 				this.car.speed = 40;
-				if(buf[2].equals("Truck"))
+				if(buf[2].equals("0"))
 				{
 					Truck trans = new Truck(Integer.parseInt(buf[2]));
 					this.car.truck = trans;
@@ -301,8 +304,9 @@ public class RoadTrainApp {
 			}
 			else
 			{
-				if (buffer != "" && Integer.parseInt(buffer.substring(0, 1)) == this.id)
+				if (buffer != "" && Integer.parseInt(buffer.substring(9, 14)) == this.port)
 				{
+					this.id = Integer.parseInt(buffer.substring(0, 1));
 					break;
 				}
 				position++;
@@ -314,12 +318,12 @@ public class RoadTrainApp {
 	
 	public String listen()
 	{
-		return rba.getCurrentMessage();
+		return rba.getMessage();
 	}
 	
 	public void talk(String msg)
 	{
-		rba.broadcast(msg);
+		rba.sendMessage(msg);
 	}
 }
 
