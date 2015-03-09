@@ -158,8 +158,12 @@ public class RoadTrainApp {
 					this.car.head = trans;
 				}
 			}
+			else if((buf[buf.length() - 5].equals(this.car.head.id) && this.truck == null) 
+			|| (buf[buf.length() - 5].equals(this.truck.id))
+			{
 			this.car.speed = Integer.parseInt(buf[buf.length - 1]);
 			this.talk(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
+		}
 		}
 		}
 	}
