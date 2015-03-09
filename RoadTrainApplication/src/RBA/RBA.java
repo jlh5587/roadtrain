@@ -222,8 +222,6 @@ public class RBA {
 					int car = scanLine.nextInt();
 					
 					if(car == currentUser){
-						System.out.println("user match");
-						
 						while(scanLine.hasNext()){
 							if(scanLine.next().equals("links")){
 								while(scanLine.hasNext()){
