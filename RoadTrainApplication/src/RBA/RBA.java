@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
-import pangolin.compID;
+//import pangolin.compID;
 
 
 public class RBA {
