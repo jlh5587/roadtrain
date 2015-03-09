@@ -322,7 +322,7 @@ public class RoadTrainApp {
 	
 	public void talk(String msg)
 	{
-		rba.sendMessage(msg);
+		rba.broadCast(msg);
 	}
 }
 
