@@ -3,6 +3,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Author: Carlos Lemus
@@ -34,7 +35,10 @@ public class SimulatorUI extends JPanel {
         // settings for relative positioning
         int initialXPos = FRAME_WIDTH / 3;
         int currentXPos = initialXPos;
-        int currentYPos = FRAME_HEIGHT / 2;
+
+	int initialYPos = FRAME_HEIGHT / 2;
+        int currentYPos = initialYPos;
+
         int frontPos = 0;
 
         // make nodes green
@@ -42,13 +46,22 @@ public class SimulatorUI extends JPanel {
 
         // draw all the nodes
         for (VirtualVanetNode vvn : nodeList) {
-            // if first node, this takes role of "front" node
-            if (vvn.nodeIndex == 1) {
-                frontPos = vvn.x;
-            }
-            // current Y is relative to front node
-            currentXPos = initialXPos + vvn.x - frontPos;
-            g.fillOval(currentXPos, currentYPos, 10, 10);
+          // if first node, this takes role of "front" node
+          if (vvn.nodeIndex == 1) {
+              frontPos = vvn.x;
+          }
+          // current Y is relative to front node
+          currentXPos = initialXPos + vvn.x - frontPos;
+    	    // configure lane positioning
+    	    currentYPos = vvn.lane == 0 ? initialYPos : (initialYPos-25);
+
+          g.fillOval(currentXPos, currentYPos, 10, 10);
+
+      		//print node label
+      	    g.drawString("Node " + vvn.nodeIndex, currentXPos-10, currentYPos+30);
+      		//print x, y coordinates
+      	    g.drawString((Integer.toString(vvn.x) + "m"), currentXPos-10, currentYPos+45);
+            g.drawString(("Lane " + Integer.toString(vvn.lane)), currentXPos-10, currentYPos+55);
         }
     }
 
@@ -58,6 +71,15 @@ public class SimulatorUI extends JPanel {
         // have it paint components based on the node list
         repaint();
     }
+
+    // private Color getRandomColor() {
+    //   Random rand = new Random();
+    //   float r = rand.nextFloat();
+    //   float g = rand.nextFloat();
+    //   float b = rand.nextFloat();
+    //
+    //   return new Color(r, g, b);
+    // }
 
 
 }
