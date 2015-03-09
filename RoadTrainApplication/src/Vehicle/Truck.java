@@ -5,14 +5,14 @@ public class Truck implements Vehicle, Runnable {
 	public int[] location = {0,0};
 	public int port = 0;
 	public Car tail = null;
-	public String id = "";
+	public int id = 0;
 
-	public Truck(String id, int port){
+	public Truck(int id, int port){
 		this.id = id;
 		this.port = port;
 	}
 	
-	public Truck(String id){
+	public Truck(int id){
 		this.id = id;
 	}
 	public void run() {
