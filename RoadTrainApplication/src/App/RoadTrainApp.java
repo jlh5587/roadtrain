@@ -1,14 +1,10 @@
-package App;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
-
-import Vehicle.Car;
-import Vehicle.Truck;
-import RBA.RBA;
 
 public class RoadTrainApp {
 	int port, position, id;
@@ -30,27 +26,28 @@ public class RoadTrainApp {
 	}
 	
 
-	public void setVehicle(boolean isTruck)
+	public void setVehicle(boolean isTruck, int x, int y)
 		{
 			if (isTruck)
 			{
-				truck = new Truck(id,port);
-				truck.speed = 40;
+				this.truck = new Truck(id,port);
+				this.truck.speed = 40;
+				this.truck.location[0] = x;
+				this.truck.location[1] = y;
 				this.joined_Train = true;
 			}
 			else
 			{
-				car = new Car(id,port);
-				car.speed = 40;
+				this.car = new Car(id,port);
+				this.car.location[0] = x;
+				this.car.location[0] = y;
+				car.speed = 45;
 			}
 			
 		}
 	
 	public void ignition() throws IOException
 	{
-		Thread message = new Thread((Runnable) this.rba);
-		message.start();
-		
 		if(this.id == 0)
 		{
 			while(true)
@@ -63,7 +60,7 @@ public class RoadTrainApp {
 					this.talk("Granted" + "~" + this.id + "~" + this.truck.location[0] 
 							+ "~" + this.truck.location[1] + "~" + this.truck.speed 
 							+ buffer_message[1]);
-					if(((Truck) this.truck).tail != null)
+					if((this.truck).tail != null)
 					{
 						this.talk("Make_Room~"+ this.truck.tail.id);
 					}
@@ -88,12 +85,12 @@ public class RoadTrainApp {
 	
 		else
 		{
-		Thread drive = new Thread((Runnable) this.car);
+		Thread drive = new Thread(this.car);
 		drive.start();
-		while(!this.joined_Train)
+		while(!this.joinTrain())
 		{
+			System.out.println(this.car.location[0]);
 			String msg = this.listen();
-			System.out.println(msg);
 			String[] buf = msg.substring(1, msg.length() - 1).split("~");
 			if(Integer.parseInt(buf[buf.length - 3]) < 100)
 			{
@@ -266,9 +263,15 @@ public class RoadTrainApp {
 				String[] buf = check.split(" ");
 				check = "";
 				if(this.truck == null)
-					buf[3] =  Integer.toString(this.car.location[1]);
+				{
+					buf[3] =  Integer.toString(this.car.location[0]);
+					buf[4] = Integer.toString(this.car.location[1]);
+				}
 				else
-					buf[3] =  Integer.toString(this.truck.location[1]);
+				{
+					buf[3] =  Integer.toString(this.truck.location[0]);
+					buf[4] = Integer.toString(this.truck.location[1]);
+				}
 				
 				for(int i = 0; i < buf.length; i++)
 				{
@@ -303,13 +306,25 @@ public class RoadTrainApp {
 			}
 			else
 			{
-				if (buffer != "" && Integer.parseInt(buffer.substring(9, 14)) == this.port)
+				if (buffer != "")
 				{
-					this.id = Integer.parseInt(buffer.substring(0, 1));
-					break;
+					String[] buffer_string = buffer.split(" ");
+					if(Integer.parseInt(buffer_string[2]) == this.port)
+					{
+						this.id = Integer.parseInt(buffer_string[0]);
+						if(this.id == 0)
+						{
+							this.setVehicle(true,Integer.parseInt(buffer_string[3]),Integer.parseInt(buffer_string[4]));
+						}
+						else
+						{
+							this.setVehicle(true,Integer.parseInt(buffer_string[3]),Integer.parseInt(buffer_string[4]));
+						}
+						break;
+					}
 				}
-				position++;
 				buffer = "";
+				this.position++;
 			}
 		}
 			in.close();
