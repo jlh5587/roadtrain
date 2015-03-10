@@ -1,4 +1,4 @@
-public class Truck implements Vehicle, Runnable {
+public class Truck implements Runnable {
 	public int speed = 0;
 	public int[] location = {0,0};
 	public int port = 0;
