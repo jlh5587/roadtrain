@@ -50,6 +50,8 @@ public class RoadTrainApp {
 	{
 		if(this.id == 0)
 		{
+			Thread drive = new Thread(this.truck);
+			drive.start();
 			while(true)
 			{
 				try
