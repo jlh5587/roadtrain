@@ -1,3 +1,5 @@
+
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,7 +17,7 @@ import java.util.Scanner;
 
 public class RBA {
 	ArrayList<TableEntry> cache;
-	String currentMessage = "New message", newMessage;
+	String currentMessage = "", newMessage;
 	int currentSeqNum, currentLastHop, currentTimesForwarded, currentUser, currentSender, numMessageCreated = 1;
 	DatagramSocket socket;
 	boolean listen;
@@ -65,10 +67,13 @@ public class RBA {
 		//while(listen){
 			DatagramPacket receivePacket = new DatagramPacket(recieved, recieved.length);
             try {
-				socket.receive(receivePacket);
+            	socket.setSoTimeout(1000);
+            	socket.receive(receivePacket);
+				
 				String packetInfo = new String(receivePacket.getData());
 				System.out.println(packetInfo);
 				parsePacket(packetInfo);
+				System.out.println("from: " + currentSender + "message: " + currentMessage);
 				checkShouldForward();
 				
 			} catch (IOException e) {
@@ -104,8 +109,8 @@ public class RBA {
 		 sendData = packetInfo.getBytes();
 		 
 		 ArrayList<Integer> forwardConn = findForwardConnections();
-		 String compName = "localhost";
-		 int port = 9876;
+		 String compName;
+		 int port;
 		 
 		 for(int i = 0; i<forwardConn.size();i++){
 		 
@@ -211,12 +216,11 @@ public class RBA {
 		try {
 			scanFile = new Scanner(configFile);
 			
-			while(scanFile.hasNext()){
+			while(scanFile.hasNext()){			
 				String line = scanFile.nextLine();
-				
 				Scanner scanLine = new Scanner(line);
 				
-				
+					
 					int car = scanLine.nextInt();
 					
 					if(car == currentUser){
@@ -224,9 +228,12 @@ public class RBA {
 							if(scanLine.next().equals("links")){
 								while(scanLine.hasNext()){
 									toForward.add(scanLine.nextInt());
+							
 								}
+							 
 							}
 						}
+						break;
 					}
 				
 				
@@ -264,8 +271,6 @@ public class RBA {
 						compNm = scanLine.next();
 						int port = scanLine.nextInt();
 						scanLine.close();
-						
-						
 						return (new compID(compNm, port));
 						
 					}
