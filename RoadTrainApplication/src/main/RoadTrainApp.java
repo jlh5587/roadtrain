@@ -52,6 +52,8 @@ public class RoadTrainApp {
 		{
 			while(true)
 			{
+				try
+				{
 				String msg = this.listen();
 				System.out.println(msg);
 				String[] buffer_message = msg.substring(1, msg.length() - 1).split("~");
@@ -81,18 +83,25 @@ public class RoadTrainApp {
 				}
 				else
 					this.talk(this.id + "~" + this.truck.location[0] + "~" + this.truck.location[1] + "~" + this.truck.speed);
-			}
+			
+				}catch(Exception e)
+				{
+					System.out.println(e.toString());
+				}
+				
+				}
 		}
 	
 		else
 		{
 		Thread drive = new Thread(this.car);
 		drive.start();
-		while(!this.joinTrain())
+		while(! this.joined_Train)
 		{
 			System.out.println(this.car.location[0]);
 			String msg = this.listen();
-			System.out.println(msg);
+			try
+			{
 			String[] buf = msg.substring(1, msg.length() - 1).split("~");
 			if(Integer.parseInt(buf[buf.length - 3]) < 100)
 			{
@@ -293,6 +302,10 @@ public class RoadTrainApp {
 		while((check = config_buffer.poll()) != null);
 		out.flush();
 		out.close();
+		catch(Exception e)
+		{
+			
+		}
 	}
 	
 	public void setConfigFilePosition() throws IOException
@@ -320,8 +333,7 @@ public class RoadTrainApp {
 						}
 						else
 						{
-							this.setVehicle(true,Integer.parseInt(buffer_string[3]),Integer.parseInt(buffer_string[4]));
-						}
+							this.setVehicle(false,Integer.parseInt(buffer_string[3]),Integer.parseInt(buffer_string[4]));						}
 						break;
 					}
 				}
