@@ -53,6 +53,7 @@ public class RoadTrainApp {
 			while(true)
 			{
 				String msg = this.listen();
+				System.out.println(msg);
 				String[] buffer_message = msg.substring(1, msg.length() - 1).split("~");
 				this.update_config();
 				if(buffer_message[0].equals("Enter"))
@@ -91,6 +92,7 @@ public class RoadTrainApp {
 		{
 			System.out.println(this.car.location[0]);
 			String msg = this.listen();
+			System.out.println(msg);
 			String[] buf = msg.substring(1, msg.length() - 1).split("~");
 			if(Integer.parseInt(buf[buf.length - 3]) < 100)
 			{
