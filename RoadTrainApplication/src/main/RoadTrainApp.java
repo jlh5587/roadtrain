@@ -58,7 +58,6 @@ public class RoadTrainApp {
 	{
 		if(this.id == 0)
 		{
-			
 			Thread drive = new Thread(this.truck);
 			drive.start();
 			
@@ -82,7 +81,6 @@ public class RoadTrainApp {
 							this.talk("Make_Room~"+ this.truck.tail.id);
 						}
 					}
-				
 					else if(buffer_message[0].equals("Joined"))
 					{
 						this.truck.tail = new Car(Integer.parseInt(buffer_message[1]));
@@ -116,13 +114,26 @@ public class RoadTrainApp {
 			if(!msg.equals(""))
 			{
 				String[] buf = msg.split("~");
-				if(Integer.parseInt(buf[buf.length - 3]) < 100)
+				if(Integer.parseInt(buf[buf.length - 3]) - this.car.location[0] < 100 && Integer.parseInt(buf[buf.length - 3]) - this.car.location[0] > 10)
 				{
-					this.talk("Enter~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
-				}
-				if(buf[0].equals("Granted") && Integer.getInteger(buf[buf.length - 1]) == this.id)
-				{
-					joined_Train = this.joinTrain();
+					while(true)
+					{
+						this.car.speed = 40;
+						System.out.println(buf[buf.length - 3] + " " + this.car.location[0]);
+						this.talk("Enter~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
+						for(int i = 0; i > 4000; i++)
+						{
+							msg = this.listen();
+							if (! msg.equals(""))
+							{
+								buf = msg.split("~");
+								if(buf[0].equals("Granted") && Integer.getInteger(buf[buf.length - 1]) == this.id)
+								{
+									joined_Train = this.joinTrain();
+								}	
+							}
+						}
+					}
 				}
 				else if(this.car.location[0] > this.car.dest)
 				{
@@ -137,54 +148,57 @@ public class RoadTrainApp {
 		{
 			try{
 				String msg = this.listen();
-				String[] buf = msg.split("~");
-				this.update_config();
-				if(this.car.location[0] > this.car.dest)
+				if(! msg.equals(""))
 				{
-					this.leaveTrain();
-				}
-				else if(buf[0].equals("Make_Room") && this.car.truck != null)
-				{
-					long t = System.currentTimeMillis();
-					long end = t + 5000;
-					this.car.speed = 35;
-					while(System.currentTimeMillis() < end) {
-						this.talk(this.id + "~" + this.car.location[0] + "~" 
-								+ this.car.location[1] + "~" + this.car.speed);
-					}
-					this.car.speed = 40;
-				}
-				else if(buf[0].equals("Joined") && this.car.truck != null)
-				{
-					Car head = new Car(Integer.parseInt(buf[1]));
-					this.car.head = head;
-					this.car.truck = null;
-				}
-				else if(buf[0].equals("Out") && buf[1].equals(car.head.id))
-				{
-					long t = System.currentTimeMillis();
-					long end = t + 5000;
-					this.car.speed = 45;
-					while(System.currentTimeMillis() < end) 
+					String[] buf = msg.split("~");
+					this.update_config();
+					if(this.car.location[0] > this.car.dest)
 					{
-						this.talk(this.id + "~" + this.car.location[0] + "~" 
-								+ this.car.location[1] + "~" + this.car.speed);
+						this.leaveTrain();
 					}
-					this.car.speed = 40;
-					if(buf[2].equals("0"))
+					else if(buf[0].equals("Make_Room") && this.car.truck != null)
 					{
-						Truck trans = new Truck(Integer.parseInt(buf[2]));
-						this.car.truck = trans;
+						long t = System.currentTimeMillis();
+						long end = t + 5000;
+						this.car.speed = 35;
+						while(System.currentTimeMillis() < end) {
+							this.talk(this.id + "~" + this.car.location[0] + "~" 
+									+ this.car.location[1] + "~" + this.car.speed);
+						}
+						this.car.speed = 40;
 					}
-					else
+					else if(buf[0].equals("Joined") && this.car.truck != null)
 					{
-						Car trans = new Car(Integer.parseInt(buf[2]));
-						this.car.head = trans;
+						Car head = new Car(Integer.parseInt(buf[1]));
+						this.car.head = head;
+						this.car.truck = null;
 					}
-				}
-				else if(buf[msg.length() - 5].equals(this.car.id)){
-				this.car.speed = Integer.parseInt(buf[buf.length - 1]);
-				this.talk(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
+					else if(buf[0].equals("Out") && buf[1].equals(car.head.id))
+					{
+						long t = System.currentTimeMillis();
+						long end = t + 5000;
+						this.car.speed = 45;
+						while(System.currentTimeMillis() < end) 
+						{
+							this.talk(this.id + "~" + this.car.location[0] + "~" 
+									+ this.car.location[1] + "~" + this.car.speed);
+						}
+						this.car.speed = 40;
+						if(buf[2].equals("0"))
+						{
+							Truck trans = new Truck(Integer.parseInt(buf[2]));
+							this.car.truck = trans;
+						}
+						else
+						{
+							Car trans = new Car(Integer.parseInt(buf[2]));
+							this.car.head = trans;
+						}
+					}
+					else if(buf[msg.length() - 5].equals(this.car.id)){
+						this.car.speed = Integer.parseInt(buf[buf.length - 1]);
+						this.talk(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
+					}
 				}	
 			}catch(Exception e){
 			
