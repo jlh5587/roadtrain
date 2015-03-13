@@ -131,7 +131,9 @@ public class RoadTrainApp {
 			}
 			this.talk(this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
 			this.update_config();	
+			System.out.println("joined: " + this.joined_Train);
 		}
+		System.out.println("joined: " + this.joined_Train);
 		while(true)
 		{
 			try{
