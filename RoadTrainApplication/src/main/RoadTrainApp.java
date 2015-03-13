@@ -122,7 +122,7 @@ public class RoadTrainApp {
 				}
 				if(buf[0].equals("Granted") && Integer.getInteger(buf[buf.length - 1]) == this.id)
 				{
-					this.joinTrain();
+					joined_Train = this.joinTrain();
 				}
 				else if(this.car.location[0] > this.car.dest)
 				{
