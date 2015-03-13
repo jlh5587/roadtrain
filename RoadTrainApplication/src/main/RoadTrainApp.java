@@ -130,7 +130,8 @@ public class RoadTrainApp {
 				}
 			}
 			this.talk(this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
-			this.update_config();	
+			this.update_config();
+			System.out.println("joined: " + this.joined_Train);
 		}
 		while(true)
 		{
@@ -347,7 +348,7 @@ public class RoadTrainApp {
 				if (buffer != "")
 				{
 					String[] buffer_string = buffer.split(" ");
-                    			System.out.println(buffer);
+                    			//System.out.println(buffer);
 					if(Integer.parseInt(buffer_string[2]) == this.port)
 					{
 						this.id = Integer.parseInt(buffer_string[0]);
