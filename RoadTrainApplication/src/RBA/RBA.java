@@ -69,7 +69,7 @@ public class RBA {
             try {
 				socket.receive(receivePacket);
 				String packetInfo = new String(receivePacket.getData());
-				System.out.println(packetInfo);
+				//System.out.println(packetInfo);
 				parsePacket(packetInfo);
 				checkShouldForward();
 				
