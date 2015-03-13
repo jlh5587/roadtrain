@@ -66,40 +66,40 @@ public class RoadTrainApp {
 			{
 				System.out.println(this.truck.location[0]);
 				
-					String msg = this.listen();
-					System.out.println(msg);
-					if(! msg.equals(""))
-					{
-						String[] buffer_message = msg.split("~");
-						this.update_config();
-						if(buffer_message[0].equals("Enter"))
-						{
-							this.talk("Granted" + "~" + this.id + "~" + this.truck.location[0] 
-									+ "~" + this.truck.location[1] + "~" + this.truck.speed 
-									+ buffer_message[1]);
-							if((this.truck).tail != null)
-							{
-								this.talk("Make_Room~"+ this.truck.tail.id);
-							}
-						}
-					
-						else if(buffer_message[0].equals("Joined"))
-						{
-							this.truck.tail = new Car(Integer.parseInt(buffer_message[1]));
-						}
-						else if(buffer_message[0].equals("Dueces"))
-						{
-							this.talk("GoodBye~" + buffer_message[1]);
-							if(buffer_message[1].equals(this.truck.id))
-							{
-								this.truck.tail = new Car(Integer.parseInt(buffer_message[3]));
-							}
-						}
-						else
-							this.talk(this.id + "~" + this.truck.location[0] + "~" + this.truck.location[1] + "~" + this.truck.speed);
-					}
-					this.talk(this.id + "~" + this.truck.location[0] + "~" + this.truck.location[1] + "~" + this.truck.speed);
+				String msg = this.listen();
+				System.out.println(msg);
+				if(! msg.equals(""))
+				{
+					String[] buffer_message = msg.split("~");
 					this.update_config();
+					if(buffer_message[0].equals("Enter"))
+					{
+						this.talk("Granted" + "~" + this.id + "~" + this.truck.location[0] 
+								+ "~" + this.truck.location[1] + "~" + this.truck.speed 
+								+ buffer_message[1]);
+						if((this.truck).tail != null)
+						{
+							this.talk("Make_Room~"+ this.truck.tail.id);
+						}
+					}
+				
+					else if(buffer_message[0].equals("Joined"))
+					{
+						this.truck.tail = new Car(Integer.parseInt(buffer_message[1]));
+					}
+					else if(buffer_message[0].equals("Dueces"))
+					{
+						this.talk("GoodBye~" + buffer_message[1]);
+						if(buffer_message[1].equals(this.truck.id))
+						{
+							this.truck.tail = new Car(Integer.parseInt(buffer_message[3]));
+						}
+					}
+					else
+						this.talk(this.id + "~" + this.truck.location[0] + "~" + this.truck.location[1] + "~" + this.truck.speed);
+				}
+				this.talk(this.id + "~" + this.truck.location[0] + "~" + this.truck.location[1] + "~" + this.truck.speed);
+				this.update_config();
 			}
 		}
 	
@@ -332,7 +332,7 @@ public class RoadTrainApp {
 	
 	public void setConfigFilePosition() throws IOException
 	{
-	FileInputStream in = new FileInputStream(config_File);
+		FileInputStream in = new FileInputStream(config_File);
 		int c = 0;
 		String buffer = "";		
 		while((c = in.read()) != -1 )
@@ -347,7 +347,7 @@ public class RoadTrainApp {
 				if (buffer != "")
 				{
 					String[] buffer_string = buffer.split(" ");
-                    System.out.println(buffer);
+                    			System.out.println(buffer);
 					if(Integer.parseInt(buffer_string[2]) == this.port)
 					{
 						this.id = Integer.parseInt(buffer_string[0]);
