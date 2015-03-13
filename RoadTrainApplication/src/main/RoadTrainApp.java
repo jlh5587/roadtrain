@@ -75,7 +75,7 @@ public class RoadTrainApp {
 					{
 						this.talk("Granted" + "~" + this.id + "~" + this.truck.location[0] 
 								+ "~" + this.truck.location[1] + "~" + this.truck.speed 
-								+ buffer_message[1]);
+								+ "~" + buffer_message[1]);
 						if((this.truck).tail != null)
 						{
 							this.talk("Make_Room~"+ this.truck.tail.id);
@@ -105,12 +105,9 @@ public class RoadTrainApp {
 		{
 		Thread drive = new Thread(this.car);
 		drive.start();
-		System.out.println("joined: " + this.joined_Train);
 		while(! this.joined_Train)
 		{
-			System.out.println(this.car.location[0]);
 			String msg = this.listen();
-			System.out.println(msg);
 			if(!msg.equals(""))
 			{
 				String[] buf = msg.split("~");
@@ -119,18 +116,20 @@ public class RoadTrainApp {
 					while(true)
 					{
 						this.car.speed = 40;
-						System.out.println(buf[buf.length - 3] + " " + this.car.location[0]);
 						this.talk("Enter~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
-						for(int i = 0; i > 4000; i++)
+						for(int i = 0; i < 50; i++)
 						{
 							msg = this.listen();
 							if (! msg.equals(""))
 							{
 								buf = msg.split("~");
-								if(buf[0].equals("Granted") && Integer.getInteger(buf[buf.length - 1]) == this.id)
+								System.out.println(msg);
+								System.out.println(buf[buf.length - 1] + " " + String.valueOf(this.id) + "This.car.location[0] " +  this.car.location[0] + "Train:  " + buf[buf.length - 3]);
+								if(buf[0].equals("Granted") && buf[buf.length - 1].trim().equals(String.valueOf(this.id)))
 								{
+									
 									joined_Train = this.joinTrain();
-									break;
+									i = 50;
 								}	
 							}
 						}
@@ -147,10 +146,12 @@ public class RoadTrainApp {
 		}
 		while(true)
 		{
+			System.out.println(car.location[0]);
 			try{
 				String msg = this.listen();
 				if(! msg.equals(""))
 				{
+					System.out.println(msg);
 					String[] buf = msg.split("~");
 					this.update_config();
 					if(this.car.location[0] > this.car.dest)
@@ -210,30 +211,31 @@ public class RoadTrainApp {
 
 	public boolean joinTrain()
 	{
-		if(this.car.location[1] == 0)
-		{
-			this.car.location[1] = 1;
-			this.car.speed = 45;
+		this.car.location[1] = 1;
+		this.car.speed = 45;
 		while(true)
 		{
-			String[] status = this.listen().split("~");
-			int trailing_distance = Integer.parseInt(status[1]);
-			if(trailing_distance - this.car.location[0] < 20)
+			String msg = this.listen();
+			if(!msg.equals(""))
 			{
-				this.car.speed = 41;
-				while(trailing_distance - this.car.location[0] < 10)
+				System.out.println("Joined MSG: "+ msg);
+				String[] status = msg.split("~");
+				int trailing_distance = Integer.parseInt(status[1]);
+				if(trailing_distance - this.car.location[0] < 20)
 				{
-					this.car.location[1] = 0;
-					this.car.speed = 40;
-					this.talk("Joined~" + this.id + "~" + this.car.location[0] + "~" 
-					+ "~" + this.car.location[1] + "~" + this.car.speed);
-					return true;
+					this.car.speed = 41;
+					if(trailing_distance - this.car.location[0] < 10 && trailing_distance - this.car.location[0] > 0)
+					{
+						this.car.location[1] = 0;
+						this.car.speed = 40;
+						this.talk("Joined~" + this.id + "~" + this.car.location[0] + "~" 
+						+ "~" + this.car.location[1] + "~" + this.car.speed);
+						return true;
+					}
 				}
-				
 			}
+			
 		}
-		}
-		return false;
 	}
 	
 	public boolean leaveTrain() throws IOException
