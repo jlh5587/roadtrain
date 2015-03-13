@@ -88,7 +88,7 @@ public class RoadTrainApp {
 		{
 		Thread drive = new Thread(this.car);
 		drive.start();
-		while(!this.joinTrain())
+		while(this.joined_Train
 		{
 			System.out.println(this.car.location[0]);
 			String msg = this.listen();
@@ -334,7 +334,7 @@ public class RoadTrainApp {
 	
 	public String listen()
 	{
-		return rba.getCurrentMessage();
+		return rba.listenForMessage();
 	}
 	
 	public void talk(String msg)
