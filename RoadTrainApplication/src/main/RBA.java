@@ -105,30 +105,35 @@ public class RBA {
 	//Forwards the message to connecting cars.
 	public void forwardMessage(){
 		 String packetInfo = currentSender + ","+ currentSeqNum+","+currentUser+","+(currentTimesForwarded+1)+","+currentMessage;
-		 byte[] sendData = new byte[4096];
-		 sendData = packetInfo.getBytes();
-		 
-		 ArrayList<Integer> forwardConn = findForwardConnections();
-		 String compName;
-		 int port;
-		 
-		 for(int i = 0; i<forwardConn.size();i++){
-		 
-			 compID c = compInfo(forwardConn.get(i));
-			 compName = c.getName();
-			 port = c.getPort();
-			
-			 //For testing purposes. These IP addresses will need to come from the config file.
-			InetAddress IPAddress;
-			try {
-				IPAddress = InetAddress.getByName(compName);
-				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-				socket.send(sendPacket);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		 try{
+			 byte[] sendData = new byte[4096];
+			 sendData = packetInfo.getBytes();
+			 
+			 ArrayList<Integer> forwardConn = findForwardConnections();
+			 String compName;
+			 int port;
+			 
+			 for(int i = 0; i<forwardConn.size();i++){
+			 
+				 compID c = compInfo(forwardConn.get(i));
+				 compName = c.getName();
+				 port = c.getPort();
+				
+				 //For testing purposes. These IP addresses will need to come from the config file.
+				InetAddress IPAddress;
+				try {
+					IPAddress = InetAddress.getByName(compName);
+					DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+					socket.send(sendPacket);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-		}
+		 }catch(Exception e){
+		 	System.out.println(packetInfo);
+		 	System.out.println(e.toString());
+		 }
 		 
 		 
 		 
