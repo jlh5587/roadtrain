@@ -1,12 +1,8 @@
-package main;
-
 
 import java.io.File;
 import java.net.InetAddress;
 import java.util.Scanner;
-import App.RoadTrainApp;
 
-import RBA.RBA;
 
 public class Main {
 
