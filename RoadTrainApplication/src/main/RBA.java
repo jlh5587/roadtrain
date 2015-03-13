@@ -71,9 +71,9 @@ public class RBA {
             	socket.receive(receivePacket);
 				
 				String packetInfo = new String(receivePacket.getData());
-				System.out.println(packetInfo);
+				//System.out.println(packetInfo);
 				parsePacket(packetInfo);
-				System.out.println("from: " + currentSender + "message: " + currentMessage);
+				//System.out.println("from: " + currentSender + " message: " + currentMessage);
 				checkShouldForward();
 				
 			} catch (IOException e) {
