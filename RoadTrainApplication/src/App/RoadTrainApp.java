@@ -54,7 +54,7 @@ public class RoadTrainApp {
 			{
 				String msg = this.listen();
 				System.out.println(msg);
-				String[] buffer_message = msg.substring(1, msg.length() - 1).split("~");
+				String[] buffer_message = msg.split("~");
 				this.update_config();
 				if(buffer_message[0].equals("Enter"))
 				{
@@ -93,7 +93,7 @@ public class RoadTrainApp {
 			System.out.println(this.car.location[0]);
 			String msg = this.listen();
 			System.out.println(msg);
-			String[] buf = msg.substring(1, msg.length() - 1).split("~");
+			String[] buf = msg.split("~");
 			if(Integer.parseInt(buf[buf.length - 3]) < 100)
 			{
 				this.talk("Enter~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
@@ -111,7 +111,7 @@ public class RoadTrainApp {
 		while(true)
 		{
 			String msg = this.listen();
-			String[] buf = msg.substring(1, msg.length() - 1).split("~");
+			String[] buf = msg.split("~");
 			this.update_config();
 			if(this.car.location[0] > this.car.dest)
 			{
@@ -198,7 +198,7 @@ public class RoadTrainApp {
 		while(true)
 		{
 			String msg = this.listen();
-			String[] buf = msg.substring(1, msg.length() - 1).split("~");
+			String[] buf = msg.split("~");
 			if(buf[0].equals("GoodBye") && Integer.parseInt(buf[1]) == this.id)
 			{
 			break;
@@ -280,10 +280,10 @@ public class RoadTrainApp {
 					check += buf[i] + " ";
 				}
 				
-				if(this.joined_Train && !buf[buf.length - 1].equals("connected"))
-					check += "connected";
-				else if (!this.joined_Train && buf[buf.length - 1].equals("connected"))
-					check = check.substring(0, check.length() - " connected".length());
+			//	if(this.joined_Train && !buf[buf.length - 1].equals("connected"))
+			//		check += "connected";
+			//	else if (!this.joined_Train && buf[buf.length - 1].equals("connected"))
+			//		check = check.substring(0, check.length() - " connected".length());
 			}
 			byte[] conent = check.getBytes();
 			out.write(conent);
