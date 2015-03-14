@@ -184,27 +184,41 @@ public class RBA {
 	}
 	
 	
-	public void sendNewMessage(String message, int reciever){
+	public void sendNewMessage(String packetInfo){
 		
-		//Used a ',' delimited file... The packet contains sender, seqNum, lastHop, times forwarded, message
-		String newPacket = currentUser + ","+ numMessageCreated+ ",-1,0," + message;
-		byte[] send = new byte[4096];
-		send = newPacket.getBytes();
-		
-		compID c = compInfo(reciever);
-		String name = c.getName();
-		int port = c.getPort();
-		
-		try {
-			InetAddress IPAddress = InetAddress.getByName(name);
-			DatagramPacket sendPacket = new DatagramPacket(send, send.length, IPAddress, port);
-			socket.send(sendPacket);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		numMessageCreated++;
+		try{
+			 byte[] sendData = new byte[4096];
+			 sendData = packetInfo.getBytes();
+			 
+			 ArrayList<Integer> forwardConn = findForwardConnections();
+			 String compName;
+			 int port;
+			 
+			 for(int i = 0; i<forwardConn.size();i++){
+			 	if(currentLastHop != i){
+					 compID c = compInfo(forwardConn.get(i));
+					 compName = c.getName();
+					 port = c.getPort();
+					
+					 //For testing purposes. These IP addresses will need to come from the config file.
+					InetAddress IPAddress;
+					try {
+						IPAddress = InetAddress.getByName(compName);
+						DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+						socket.send(sendPacket);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			 	}
+			}
+		 }catch(Exception e){
+		 	System.out.println(packetInfo);
+		 	System.out.println(e.toString());
+		 }
+		 
+		 
+		 
 	}
 	
 	public void setListen(boolean listen){
@@ -298,12 +312,9 @@ public class RBA {
 	}
 	
 	public void broadcast(String message){
-		currentMessage = message;
-		currentSender = currentUser;
-		currentLastHop = currentUser;
-		currentSeqNum = numMessageCreated;
+		String packetInfo = currentUser + ","+ numMessageCreated+","+currentUser+","+0+","+currentMessage;
 		numMessageCreated++;
-		forwardMessage();
+		sendNewMessage(packetInfo);
 	}
 
 }
