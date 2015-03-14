@@ -218,19 +218,27 @@ public class RoadTrainApp {
 			String msg = this.listen();
 			if(!msg.equals(""))
 			{
-				System.out.println("Joined MSG: "+ msg);
+				System.out.println("Joined MSG: "+ msg + "Location " + this.car.location[0] + " " + this.car.location[1]);
 				String[] status = msg.split("~");
-				int trailing_distance = Integer.parseInt(status[1]);
-				if(trailing_distance - this.car.location[0] < 20)
+				if(status[0].equals("Granted") && Integer.parseInt(status[1]) - this.car.location[0] < 20)
 				{
-					this.car.speed = 41;
-					if(trailing_distance - this.car.location[0] < 10 && trailing_distance - this.car.location[0] > 0)
+					this.car.speed = 43;
+					while(true)
 					{
-						this.car.location[1] = 0;
-						this.car.speed = 40;
-						this.talk("Joined~" + this.id + "~" + this.car.location[0] + "~" 
-						+ "~" + this.car.location[1] + "~" + this.car.speed);
-						return true;
+						System.out.println(this.car.location + " " + msg);
+						msg = this.listen();
+						if(!msg.equals(""))
+						{
+							status = msg.split("~");
+							if(Integer.parseInt(status[1]) - this.car.location[0] < 10 && Integer.parseInt(status[1]) - this.car.location[0] > 0)
+							{
+								this.car.location[1] = 0;
+								this.car.speed = 40;
+								this.talk("Joined~" + this.id + "~" + this.car.location[0] + "~" 
+										+ "~" + this.car.location[1] + "~" + this.car.speed);
+								return true;
+							}
+						}
 					}
 				}
 			}
