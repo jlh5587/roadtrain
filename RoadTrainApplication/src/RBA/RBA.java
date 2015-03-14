@@ -110,21 +110,23 @@ public class RBA {
 		 int port = 9876;
 		 
 		 for(int i = 0; i<forwardConn.size();i++){
-		 
-			 compID c = compInfo(forwardConn.get(i));
-			 compName = c.getName();
-			 port = c.getPort();
-			
-			 //For testing purposes. These IP addresses will need to come from the config file.
-			InetAddress IPAddress;
-			try {
-				IPAddress = InetAddress.getByName(compName);
-				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-				socket.send(sendPacket);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		 	
+		 	if(! currentLastHop == i){
+				 compID c = compInfo(forwardConn.get(i));
+				 compName = c.getName();
+				 port = c.getPort();
+				
+				 //For testing purposes. These IP addresses will need to come from the config file.
+				InetAddress IPAddress;
+				try {
+					IPAddress = InetAddress.getByName(compName);
+					DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+					socket.send(sendPacket);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		 	}
 		}
 		 
 		 
