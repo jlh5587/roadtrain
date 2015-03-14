@@ -48,7 +48,7 @@ public class RoadTrainApp {
 			{
 				this.car = new Car(id,port);
 				this.car.location[0] = x;
-				this.car.location[0] = y;
+				this.car.location[1] = y;
 				car.speed = 45;
 			}
 			
