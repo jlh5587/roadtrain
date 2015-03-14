@@ -299,6 +299,10 @@ public class RBA {
 	
 	public void broadcast(String message){
 		currentMessage = message;
+		currentSender = currentUser;
+		currentLastHop = currentUser;
+		currentSeqNum = numMessageCreated;
+		numMessageCreated++;
 		forwardMessage();
 	}
 
