@@ -113,7 +113,7 @@ public class RoadTrainApp {
 				String[] buf = msg.split("~");
 				if(Integer.parseInt(buf[buf.length - 3]) - this.car.location[0] < 100 && Integer.parseInt(buf[buf.length - 3]) - this.car.location[0] > 10)
 				{
-					while(true)
+					while(!joined_Train)
 					{
 						this.car.speed = 40;
 						this.talk("Enter~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
