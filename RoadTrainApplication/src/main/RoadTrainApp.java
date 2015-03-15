@@ -60,7 +60,7 @@ public class RoadTrainApp {
 		{
 			Thread drive = new Thread(this.truck);
 			drive.start();
-			
+			int lock_Enter = 0;
 			while(true)
 			{
 				System.out.println(this.truck.location[0]);
@@ -71,8 +71,9 @@ public class RoadTrainApp {
 				{
 					String[] buffer_message = msg.split("~");
 					this.update_config();
-					if(buffer_message[0].equals("Enter"))
+					if(buffer_message[0].equals("Enter") && (lock_Enter == 0 || Integer.parseInt(buffer_message[1]) == lock_Enter))
 					{
+						lock_Enter = Integer.parseInt(buffer_message[1]);
 						this.talk("Granted" + "~" + this.id + "~" + this.truck.location[0] 
 								+ "~" + this.truck.location[1] + "~" + this.truck.speed 
 								+ "~" + buffer_message[1]);
@@ -84,6 +85,7 @@ public class RoadTrainApp {
 					else if(buffer_message[0].equals("Joined"))
 					{
 						this.truck.tail = new Car(Integer.parseInt(buffer_message[1]));
+						lock_Enter = 0;
 					}
 					else if(buffer_message[0].equals("Dueces"))
 					{
