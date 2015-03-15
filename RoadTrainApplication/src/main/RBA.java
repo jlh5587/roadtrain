@@ -312,7 +312,7 @@ public class RBA {
 	}
 	
 	public void broadcast(String message){
-		String packetInfo = currentUser + ","+ numMessageCreated+","+currentUser+","+0+","+currentMessage;
+		String packetInfo = currentUser + ","+ numMessageCreated+","+currentUser+","+0+","+message;
 		numMessageCreated++;
 		sendNewMessage(packetInfo);
 	}
