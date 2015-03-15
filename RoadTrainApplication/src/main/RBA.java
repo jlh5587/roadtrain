@@ -176,11 +176,16 @@ public class RBA {
 	}
 	
 	private boolean cacheMessage(){	
-		cache.get(currentSender -1).setMessage(currentMessage);
-		cache.get(currentSender-1).setLastHop(currentUser);
-		cache.get(currentSender-1).setNumOfForwards(currentTimesForwarded+1);
-		cache.get(currentSender-1).setSeqNum(currentSeqNum);
-		return true;
+		for(int i = 0; i < cache.size(); i++){
+			if(cache.get(i).getSender() == currentSender){
+				cache.get(i).setMessage(currentMessage);
+				cache.get(i).setLastHop(currentUser);
+				cache.get(i).setNumOfForwards(currentTimesForwarded+1);
+				cache.get(i).setSeqNum(currentSeqNum);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	
