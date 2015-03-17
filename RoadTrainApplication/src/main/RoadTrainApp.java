@@ -284,7 +284,7 @@ public class RoadTrainApp {
 			return true;
 		}
 	}
-		
+	/*	
 	public void update_config() throws IOException
 	{
 		
@@ -398,9 +398,9 @@ public class RoadTrainApp {
 		}finally{
 			lock.release();
 		}
-	}
+	}*/
 	
-	/*public void update_config() throws IOException
+	public void update_config() throws IOException
 	{
 		//Read in the file
 		ArrayList<String> lines = new ArrayList<String>();
@@ -426,7 +426,7 @@ public class RoadTrainApp {
 					if(car_id != id){
 						int d = x_val - this.car.location[0];
 						if(d < 80 && d > -80){
-							links += " " + Integer.toString(d);
+							links += " " + Integer.toString(i);
 						}
 					}
 					
@@ -436,7 +436,7 @@ public class RoadTrainApp {
 					if(car_id != id){
 						int d = x_val - this.truck.location[0];
 						if(d < 80 && d > -80){
-							links += " " + Integer.toString(d);
+							links += " " + Integer.toString(i);
 						}
 					}
 				}
@@ -450,13 +450,13 @@ public class RoadTrainApp {
 
 		if(this.truck == null)
 		{
-			String new_line = scan.next() + " " + scan.next() + " " +scan.next() + Integer.toString(this.car.location[0]) +" "+ Integer.toString(this.car.location[1]) + " " + links;
+			String new_line = scan.next() + " " + scan.next() + " " +scan.next()+ " " + Integer.toString(this.car.location[0]) +" "+ Integer.toString(this.car.location[1]) + " " + links;
 			lines.set(id, new_line);
 
 		}
 		else
 		{
-			String new_line = scan.next() + " " + scan.next() + " " +scan.next() + Integer.toString(this.truck.location[0]) +" "+ Integer.toString(this.truck.location[1]) + " " + links;
+			String new_line = scan.next() + " " + scan.next() + " " +scan.next() +" " + Integer.toString(this.truck.location[0]) +" "+ Integer.toString(this.truck.location[1]) + " " + links;
 			lines.set(id, new_line);
 		}
 
@@ -484,7 +484,7 @@ public class RoadTrainApp {
 		}
 
 
-	}*/
+	}
 	
 	public void setConfigFilePosition() throws IOException
 	{
