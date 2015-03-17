@@ -11,7 +11,7 @@ import java.util.*;
 import java.nio.channels.*;
 
 public class RoadTrainApp {
-	int port, position, id;
+	int port, id;
 	RBA rba;
 	Truck truck;
 	Car car;
@@ -201,10 +201,15 @@ public class RoadTrainApp {
 							this.car.head = trans;
 						}
 					}
-					else if(buf[msg.length() - 5].equals(this.car.id)){
+					else if(this.car.truck != null && Integer.parseInt(buf[buf.length - 4] == 0){
 						this.car.speed = Integer.parseInt(buf[buf.length - 1]);
 						this.talk(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
 					}
+					else if(this.car.head.int == Integer.parseInt(buf[buf.length - 4]){
+						this.car.speed = Integer.parseInt(buf[buf.length - 1]);
+						this.talk(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
+					}
+					System.out.println("It's Here");
 				}	
 			}catch(Exception e){
 			
@@ -249,156 +254,6 @@ public class RoadTrainApp {
 			
 		}
 	}
-	
-	public boolean leaveTrain() throws IOException
-	{
-		this.talk("Dueces~" + this.id);
-		while(true)
-		{
-			String msg = this.listen();
-			String[] buf = msg.split("~");
-			if(buf[0].equals("GoodBye") && Integer.parseInt(buf[1]) == this.id)
-			{
-			break;
-			}
-			this.update_config();
-		}
-		this.car.speed = 0;
-		this.car.location[1] = -1;
-		this.joined_Train = false;
-		this.update_config();
-		if(this.car.tail == null)
-		{
-			if(this.car.head.truck == null)
-				this.talk("Out~" + this.id + "~" + this.car.head.id);
-			else
-				this.talk("Out~" + this.id + "~" + this.car.truck.id);
-			return true;
-		}
-		else
-		{
-			if(this.car.truck == null)
-				this.talk("Out~" + this.id + "~" + this.car.head.id);
-			else
-				this.talk("Out~" + this.id + "~" + this.car.truck.id);
-			return true;
-		}
-	}
-	/*	
-	public void update_config() throws IOException
-	{
-		
-		ArrayList<Integer> connections = new ArrayList<Integer>();
-		Queue<String> config_buffer = new LinkedList<String>();
-		FileInputStream in = new FileInputStream(config_File);
-		int a = 0;
-		int c = 0;
-		try {
-			String buffer = "";
-			while((c = in.read()) != -1 )
-			{
-				if (c != 10)
-					buffer += (char) c;
-				else
-				{
-					config_buffer.add(buffer);
-
-
-					String[] buf = buffer.split(" ");
-					if(a < 10){
-						if(Integer.parseInt(buf[0]) != id){
-							if(this.truck == null)
-							{
-								int val_x = Integer.parseInt(buf[3])-this.car.location[0];
-								connections.add(Integer.parseInt(buf[0]), val_x);
-							}
-							else
-							{
-								int val_x = Integer.parseInt(buf[3])-this.truck.location[0];
-								connections.add(Integer.parseInt(buf[0]), val_x);
-							}
-						}
-					}
-					a++;
-					
-
-					connections.add(id, 200);
-
-					buffer = "";
-				}
-			}
-			config_buffer.add(buffer);
-		}
-		finally
-		{
-			if(in != null)
-			{
-				in.close();
-			}
-		}
-	
-		try{
-			channel.tryLock();
-			FileOutputStream out = new FileOutputStream(config_File);
-			String check = config_buffer.poll();
-			c = this.position;
-			do
-			{		
-				if (c == 0)
-				{
-					String[] buf = check.split(" ");
-					check = "";
-					if(this.truck == null)
-					{
-						buf[3] =  Integer.toString(this.car.location[0]);
-						buf[4] = Integer.toString(this.car.location[1]);
-					}
-					else
-					{
-						buf[3] =  Integer.toString(this.truck.location[0]);
-						buf[4] = Integer.toString(this.truck.location[1]);
-					}
-					
-					for(int i = 0; i < buf.length; i++)
-					{
-						check += buf[i] + " ";
-					}
-					
-
-					Scanner scan = new Scanner(check);
-					if(scan.nextInt() == id){
-						String temp = "";
-						while(! scan.next().equals("links")){
-							temp += scan.next() + " ";
-						}
-
-						temp += "links ";
-
-						for(int i = 0; i < connections.size(); i++){
-							if(connections.get(i) < 80 && connections.get(i) > -80){
-								temp+= (i) + " ";
-							}
-						}
-
-						check = temp;
-					}
-					
-				}
-				c--;
-				byte[] conent = check.getBytes();
-				out.write(conent);
-				out.write(10);
-				
-			}
-			while((check = config_buffer.poll()) != null);
-			out.flush();
-			out.close();
-		}catch(OverlappingFileLockException e){
-			
-		}finally{
-			lock.release();
-		}
-	}*/
 	
 	public void update_config() throws IOException
 	{
@@ -482,47 +337,34 @@ public class RoadTrainApp {
 		}finally{
 			lock.release();
 		}
-
-
 	}
 	
 	public void setConfigFilePosition() throws IOException
 	{
-		FileInputStream in = new FileInputStream(config_File);
-		int c = 0;
-		String buffer = "";		
-		while((c = in.read()) != -1 )
+		String buffer = "";	
+		Scanner scan = new Scanner(config_File);
+
+		while (scan.hasNextLine())
 		{
-			//System.out.println(c);
-			if (c != 10)
+			buffer = scan.nextLine();
+			if(!buffer.equals(""))
 			{
-				buffer += (char) c;
-			}
-			else
-			{
-				if (buffer != "")
+				String[] buffer_string = buffer.split(" ");
+				if(Integer.parseInt(buffer_string[2]) == this.port)
 				{
-					String[] buffer_string = buffer.split(" ");
-                    			//System.out.println(buffer);
-					if(Integer.parseInt(buffer_string[2]) == this.port)
+					this.id = Integer.parseInt(buffer_string[0]);
+					if(this.id == 0)
 					{
-						this.id = Integer.parseInt(buffer_string[0]);
-						if(this.id == 0)
-						{
-							this.setVehicle(true,Integer.parseInt(buffer_string[3]),Integer.parseInt(buffer_string[4]));
-						}
-						else
-						{
-							this.setVehicle(false,Integer.parseInt(buffer_string[3]),Integer.parseInt(buffer_string[4]));
-						}
-						break;
+						this.setVehicle(true,Integer.parseInt(buffer_string[3]),Integer.parseInt(buffer_string[4]));
 					}
-				}
-				buffer = "";
-				this.position++;
+					else
+					{
+						this.setVehicle(false,Integer.parseInt(buffer_string[3]),Integer.parseInt(buffer_string[4]));
+					}
+					break;
+					}
 			}
 		}
-			in.close();
 	}
 	
 	public String listen()
