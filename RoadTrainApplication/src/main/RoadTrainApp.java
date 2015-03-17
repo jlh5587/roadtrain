@@ -18,7 +18,7 @@ public class RoadTrainApp {
 	String config_name = "";
 	File config_File = null;
 	boolean joined_Train = false;
-	boolean lock = false;	
+	FileLock lock = null;
 	
 	public RoadTrainApp(int port, File config){
 		this.config_File = config;
@@ -197,11 +197,11 @@ public class RoadTrainApp {
 							this.car.head = trans;
 						}
 					}
-					else if(this.car.truck != null && Integer.parseInt(buf[buf.length - 4] == 0){
+					else if(this.car.truck != null && Integer.parseInt(buf[buf.length - 4]) == 0){
 						this.car.speed = Integer.parseInt(buf[buf.length - 1]);
 						this.talk(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
 					}
-					else if(this.car.head.int == Integer.parseInt(buf[buf.length - 4]){
+					else if(this.car.head.id == Integer.parseInt(buf[buf.length - 4])){
 						this.car.speed = Integer.parseInt(buf[buf.length - 1]);
 						this.talk(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
 					}
@@ -315,7 +315,6 @@ public class RoadTrainApp {
 							links += " " + Integer.toString(i);
 						}
 					}
-					
 				}
 				else
 				{
@@ -349,24 +348,26 @@ public class RoadTrainApp {
 
 		//write each line back to the file.
 		try{
-			org.apache.commons.io.FileUtils.touch(config_File);
-			this.lock = true;
-			PrintWriter clear = new PrintWriter(config_File);
-			clear.print("");
-			clear.close();
-
-			PrintWriter write = new PrintWriter(config_File);
-			
-			for(int i = 0; i<lines.size(); i++){
-				write.println(lines.get(i));
+			this.lock = new RandomAccessFile(config_File, "rw").getChannel().tryLock();
+			if (this.lock != null)
+			{
+				PrintWriter clear = new PrintWriter(config_File);
+				clear.print("");
+				clear.close();
+				PrintWriter write = new PrintWriter(config_File);
+				for(int i = 0; i<lines.size(); i++){
+					write.println(lines.get(i));
+				}
+				write.close();
 			}
-
-			write.close();
-
 		}catch(Exception e){
-			this.lock = false;
+		}finally{
+			if(this.lock != null)
+			{
+				this.lock.release();
+			}
 		}
-	}
+}
 	
 	public void setConfigFilePosition() throws IOException
 	{
