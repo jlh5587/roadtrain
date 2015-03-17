@@ -345,8 +345,6 @@ public class RoadTrainApp {
 			lines.set(id, new_line);
 		}
 
-
-		//write each line back to the file.
 		try{
 			this.lock = new RandomAccessFile(config_File, "rw").getChannel().tryLock();
 			if (this.lock != null)
