@@ -18,16 +18,12 @@ public class RoadTrainApp {
 	String config_name = "";
 	File config_File = null;
 	boolean joined_Train = false;
-	FileChannel channel;
-	FileLock lock;	
+	boolean lock = false;	
 	
 	public RoadTrainApp(int port, File config){
 		this.config_File = config;
 		this.port = port;
-		
 		try{
-			channel = new RandomAccessFile(config, "rw").getChannel();
-			lock = channel.lock();
 			this.setConfigFilePosition();
 			rba = new RBA(this.id, port, config);
 		} catch (Exception e){
@@ -353,8 +349,8 @@ public class RoadTrainApp {
 
 		//write each line back to the file.
 		try{
-			channel.tryLock();
-			//clears file
+			org.apache.commons.io.FileUtils.touch(config_File);
+			this.lock = true;
 			PrintWriter clear = new PrintWriter(config_File);
 			clear.print("");
 			clear.close();
@@ -367,13 +363,9 @@ public class RoadTrainApp {
 
 			write.close();
 
-		}catch(OverlappingFileLockException e){
-			
-		}finally{
-			lock.release();
+		}catch(Exception e){
+			this.lock = false;
 		}
-
-
 	}
 	
 	public void setConfigFilePosition() throws IOException
