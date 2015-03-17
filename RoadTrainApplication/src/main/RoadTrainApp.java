@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.*;
 import java.nio.channels.*;
 
 public class RoadTrainApp {
@@ -286,9 +287,10 @@ public class RoadTrainApp {
 	public void update_config() throws IOException
 	{
 		
-		
+		ArrayList<Integer> connections = new ArrayList<Integer>();
 		Queue<String> config_buffer = new LinkedList<String>();
 		FileInputStream in = new FileInputStream(config_File);
+		int a = 0;
 		int c = 0;
 		try {
 			String buffer = "";
@@ -298,8 +300,30 @@ public class RoadTrainApp {
 					buffer += (char) c;
 				else
 				{
-				config_buffer.add(buffer);
-				buffer = "";
+					config_buffer.add(buffer);
+
+
+					String[] buf = buffer.split(" ");
+					if(a < 10){
+						if(Integer.parseInt(buf[0]) != id){
+							if(this.truck == null)
+							{
+								int val_x = Integer.parseInt(buf[3])-this.car.location[0];
+								connections.add(Integer.parseInt(buf[0]), val_x);
+							}
+							else
+							{
+								int val_x = Integer.parseInt(buf[3])-this.truck.location[0];
+								connections.add(Integer.parseInt(buf[0]), val_x);
+							}
+						}
+					}
+					a++;
+					
+
+					connections.add(id, 200);
+
+					buffer = "";
 				}
 			}
 			config_buffer.add(buffer);
@@ -319,7 +343,6 @@ public class RoadTrainApp {
 			c = this.position;
 			do
 			{		
-				
 				if (c == 0)
 				{
 					String[] buf = check.split(" ");
@@ -340,6 +363,24 @@ public class RoadTrainApp {
 						check += buf[i] + " ";
 					}
 					
+
+					Scanner scan = new Scanner(check);
+					if(scan.nextInt() == id){
+						String temp = "";
+						while(! scan.next().equals("links")){
+							temp += scan.next() + " ";
+						}
+
+						temp += "links ";
+
+						for(int i = 0; i < connections.size(); i++){
+							if(connections.get(i) < 80 && connections.get(i) > -80){
+								temp+= (i) + " ";
+							}
+						}
+
+						check = temp;
+					}
 					
 				}
 				c--;
