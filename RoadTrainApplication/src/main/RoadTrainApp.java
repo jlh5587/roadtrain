@@ -399,6 +399,92 @@ public class RoadTrainApp {
 		}
 	}
 	
+	/*public void update_config() throws IOException
+	{
+		//Read in the file
+		ArrayList<String> lines = new ArrayList<String>();
+
+		Scanner file_scan = new Scanner(config_File);
+		//adds each line of the file to the list of lines
+		while(file_scan.hasNext()){
+			lines.add(file_scan.nextLine());
+		}
+		//closes the original scanner
+		file_scan.close();
+		String links = "links";
+		//loops through each line to determine the distance from itself to that line.
+		for(int i = 0; i < lines.size(); i++){
+			Scanner line_scan = new Scanner(lines.get(i));
+			int car_id = line_scan.nextInt();
+			line_scan.next();
+			line_scan.next();
+			int x_val = line_scan.nextInt();
+
+				if(this.truck == null)
+				{
+					if(car_id != id){
+						int d = x_val - this.car.location[0];
+						if(d < 80 && d > -80){
+							links += " " + Integer.toString(d);
+						}
+					}
+					
+				}
+				else
+				{
+					if(car_id != id){
+						int d = x_val - this.truck.location[0];
+						if(d < 80 && d > -80){
+							links += " " + Integer.toString(d);
+						}
+					}
+				}
+			line_scan.close();
+		}
+
+
+		//Prepare each line to be written to the file
+
+		Scanner scan = new Scanner(lines.get(id));
+
+		if(this.truck == null)
+		{
+			String new_line = scan.next() + " " + scan.next() + " " +scan.next() + Integer.toString(this.car.location[0]) +" "+ Integer.toString(this.car.location[1]) + " " + links;
+			lines.set(id, new_line);
+
+		}
+		else
+		{
+			String new_line = scan.next() + " " + scan.next() + " " +scan.next() + Integer.toString(this.truck.location[0]) +" "+ Integer.toString(this.truck.location[1]) + " " + links;
+			lines.set(id, new_line);
+		}
+
+
+		//write each line back to the file.
+		try{
+			channel.tryLock();
+			//clears file
+			PrintWriter clear = new PrintWriter(config_File);
+			clear.print("");
+			clear.close();
+
+			PrintWriter write = new PrintWriter(config_File);
+			
+			for(int i = 0; i<lines.size(); i++){
+				write.println(lines.get(i));
+			}
+
+			write.close();
+
+		}catch(OverlappingFileLockException e){
+			
+		}finally{
+			lock.release();
+		}
+
+
+	}*/
+	
 	public void setConfigFilePosition() throws IOException
 	{
 		FileInputStream in = new FileInputStream(config_File);
