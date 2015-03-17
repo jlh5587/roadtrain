@@ -255,6 +255,41 @@ public class RoadTrainApp {
 		}
 	}
 	
+	public boolean leaveTrain() throws IOException
+	{
+		this.talk("Dueces~" + this.id);
+		while(true)
+		{
+			String msg = this.listen();
+			String[] buf = msg.split("~");
+			if(buf[0].equals("GoodBye") && Integer.parseInt(buf[1]) == this.id)
+			{
+			break;
+			}
+			this.update_config();
+		}
+		this.car.speed = 0;
+		this.car.location[1] = -1;
+		this.joined_Train = false;
+		this.update_config();
+		if(this.car.tail == null)
+		{
+			if(this.car.head.truck == null)
+				this.talk("Out~" + this.id + "~" + this.car.head.id);
+			else
+				this.talk("Out~" + this.id + "~" + this.car.truck.id);
+			return true;
+		}
+		else
+		{
+			if(this.car.truck == null)
+				this.talk("Out~" + this.id + "~" + this.car.head.id);
+			else
+				this.talk("Out~" + this.id + "~" + this.car.truck.id);
+			return true;
+		}
+	}
+	
 	public void update_config() throws IOException
 	{
 		//Read in the file
@@ -337,6 +372,8 @@ public class RoadTrainApp {
 		}finally{
 			lock.release();
 		}
+
+
 	}
 	
 	public void setConfigFilePosition() throws IOException
