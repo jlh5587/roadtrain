@@ -19,6 +19,7 @@ public class RBA {
 	ArrayList<TableEntry> cache;
 	String currentMessage = "", newMessage;
 	int currentSeqNum, currentLastHop, currentTimesForwarded, currentUser, currentSender, numMessageCreated = 1;
+	int droppedPackets = 0;
 	DatagramSocket socket;
 	boolean listen;
 	File configFile;
@@ -181,6 +182,12 @@ public class RBA {
 				cache.get(i).setMessage(currentMessage);
 				cache.get(i).setLastHop(currentUser);
 				cache.get(i).setNumOfForwards(currentTimesForwarded+1);
+				
+				if(cache.get(i).getSeqNum() < currentSeqNum -1){
+					droppedPackets++;
+					System.out.println(droppedPackets);
+				}
+				
 				cache.get(i).setSeqNum(currentSeqNum);
 				return true;
 			}
