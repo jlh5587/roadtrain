@@ -78,7 +78,7 @@ public class RBA {
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		//}
             
@@ -132,8 +132,8 @@ public class RBA {
 			 	}
 			}
 		 }catch(Exception e){
-		 	System.out.println(packetInfo);
-		 	System.out.println(e.toString());
+		 //	System.out.println(packetInfo);
+		 //	System.out.println(e.toString());
 		 }
 		 
 		 
@@ -271,7 +271,7 @@ public class RBA {
 			
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+		//	e.printStackTrace();
 		}
 
 		return toForward;
