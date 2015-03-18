@@ -218,7 +218,7 @@ public class RoadTrainApp {
 							{
 								this.car.location[1] = 0;
 								this.car.speed = 40;
-								this.talk("Joined~" + this.id + "~" + this.car.location[0] + "~" 
+								this.talk("Joined~" + this.id + "~" + this.car.location[0] 
 										+ "~" + this.car.location[1] + "~" + this.car.speed);
 								this.car.truck = new Truck(0,10100,this.config_File);
 								return true;
