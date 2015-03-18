@@ -31,8 +31,8 @@ public class Car implements Runnable{
 		while (true)
 		{
 				try {
-					Thread.sleep(1000);
-					location[0] += speed;
+					Thread.sleep(2000);
+					location[0] += speed + speed;
 					this.update_config();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -64,9 +64,9 @@ public class Car implements Runnable{
 			buf = itr.next().split(" ");
 			if(Integer.parseInt(buf[0]) != this.id)
 			{	
-				if(Integer.parseInt(buf[3]) - this.location[0] < 80 && Integer.parseInt(buf[3]) - this.location[0] > -80)
+				if(Integer.parseInt(buf[3]) - this.location[0] < 100 && Integer.parseInt(buf[3]) - this.location[0] > -100)
 				{
-					links += Integer.parseInt(buf[0]) + " ";
+					links += buf[0] + " ";
 				}
 			}
 		}
