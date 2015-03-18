@@ -26,9 +26,9 @@ public class Truck implements Runnable {
 		while (true)
 		{
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(2000);
 				this.update_config();
-				location[0] += speed;
+				location[0] += speed + speed;
 				} catch (Exception e) {
 					e.printStackTrace();
 				} 
@@ -59,16 +59,19 @@ public class Truck implements Runnable {
 			buf = itr.next().split(" ");
 			if(Integer.parseInt(buf[0]) != this.id)
 			{
-				if(Integer.parseInt(buf[3]) - this.location[0] < 80 && Integer.parseInt(buf[3]) - this.location[0] > -80)
+				System.out.println(buf[0] + " " + Integer.toString(Integer.parseInt(buf[3]) - this.location[0]));
+				if(Integer.parseInt(buf[3]) - this.location[0] < 100 && Integer.parseInt(buf[3]) - this.location[0] > -100)
 				{
-					links += Integer.parseInt(buf[0]) + " ";
+					links += buf[0] + " ";
+					System.out.println("Links: " + links);
 				}
 			}
 		}
 		if(! lines.isEmpty())
 		{
 			buf = lines.get(this.id).split(" ");
-			edit_Line = buf[0] + " " + buf[1] + " " + buf[2] + " " + Integer.toString(this.location[0]) + " " + Integer.toString(this.location[1]) + " " + buf[5] + " " + links; 
+			edit_Line = buf[0] + " " + buf[1] + " " + buf[2] + " " + Integer.toString(this.location[0]) + " " + Integer.toString(this.location[1]) + " " + buf[5] + " " + links;
+			System.out.println(edit_Line); 
 			lines.set(this.id, edit_Line);
 			PrintWriter clear = new PrintWriter(config_File);
 			clear.print("");
