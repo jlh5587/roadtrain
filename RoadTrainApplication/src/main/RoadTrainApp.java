@@ -96,6 +96,7 @@ public class RoadTrainApp {
 		while(! this.joined_Train)
 		{
 			String msg = this.listen();
+			System.out.println(msg);
 			if(!msg.equals(""))
 			{
 				String[] buf = msg.split("~");
