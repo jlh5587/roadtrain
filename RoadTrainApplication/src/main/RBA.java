@@ -114,7 +114,7 @@ public class RBA {
 			 int port;
 			 
 			 for(int i = 0; i<forwardConn.size();i++){
-			 	if(currentLastHop != i){
+			 	if(currentLastHop != i && currentSender != i){
 					 compID c = compInfo(forwardConn.get(i));
 					 compName = c.getName();
 					 port = c.getPort();
