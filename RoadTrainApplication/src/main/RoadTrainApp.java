@@ -1,14 +1,8 @@
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.*;
-import java.nio.channels.*;
 
 public class RoadTrainApp {
 	int port, id;
@@ -18,7 +12,6 @@ public class RoadTrainApp {
 	String config_name = "";
 	File config_File = null;
 	boolean joined_Train = false;
-	FileLock lock = null;
 	
 	public RoadTrainApp(int port, File config){
 		this.config_File = config;
@@ -64,7 +57,7 @@ public class RoadTrainApp {
 				System.out.println(this.truck.location[0]);
 				
 				String msg = this.listen();
-				System.out.println(msg);
+				System.out.println("Train: " + msg);
 				if(! msg.equals(""))
 				{
 					String[] buffer_message = msg.split("~");
@@ -108,6 +101,7 @@ public class RoadTrainApp {
 		while(! this.joined_Train)
 		{
 			String msg = this.listen();
+			System.out.println("Message: " + msg);
 			if(!msg.equals(""))
 			{
 				String[] buf = msg.split("~");
@@ -119,6 +113,7 @@ public class RoadTrainApp {
 						this.talk("Enter~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
 						for(int i = 0; i < 50; i++)
 						{
+							this.update_config();
 							msg = this.listen();
 							if (! msg.equals(""))
 							{
@@ -126,9 +121,9 @@ public class RoadTrainApp {
 								System.out.println(msg);
 								System.out.println(buf[buf.length - 1] + " " + String.valueOf(this.id) + "This.car.location[0] " +  this.car.location[0] + "Train:  " + buf[buf.length - 3]);
 								if(buf[0].equals("Granted") && buf[buf.length - 1].trim().equals(String.valueOf(this.id)))
-								{
-									
+								{	
 									joined_Train = this.joinTrain();
+									this.car.truck = new Truck(0,10100);
 									i = 50;
 								}	
 							}
@@ -142,23 +137,24 @@ public class RoadTrainApp {
 			}
 			this.talk(this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
 			this.update_config();
-			System.out.println("joined: " + this.joined_Train);
 		}
 		while(true)
 		{
-			System.out.println(car.location[0]);
+			System.out.println(this.car.truck == null);
+			this.update_config();
 			try{
 				String msg = this.listen();
 				if(! msg.equals(""))
 				{
-					System.out.println(msg);
+					System.out.println("Check_1 " + this.car.truck == null);
 					String[] buf = msg.split("~");
-					this.update_config();
+					System.out.println("Check_2 " + this.car.truck == null);
 					if(this.car.location[0] > this.car.dest)
 					{
 						this.leaveTrain();
 					}
-					else if(buf[0].equals("Make_Room") && this.car.truck != null)
+					System.out.println("Check_3 " + this.car.truck == null);
+					if(buf[0].equals("Make_Room") && this.car.truck != null)
 					{
 						long t = System.currentTimeMillis();
 						long end = t + 5000;
@@ -169,14 +165,17 @@ public class RoadTrainApp {
 						}
 						this.car.speed = 40;
 					}
-					else if(buf[0].equals("Joined") && this.car.truck != null)
+					System.out.println("Check_4 " + this.car.truck == null);
+					if(buf[0].equals("Joined") && this.car.truck != null)
 					{
 						Car head = new Car(Integer.parseInt(buf[1]));
 						this.car.head = head;
 						this.car.truck = null;
 					}
-					else if(buf[0].equals("Out") && buf[1].equals(car.head.id))
+					System.out.println("Check_5 " + this.car.truck == null);
+					if(buf[0].equals("Out") && buf[1].equals(car.head.id))
 					{
+						System.out.println("Wait a min");
 						long t = System.currentTimeMillis();
 						long end = t + 5000;
 						this.car.speed = 45;
@@ -197,30 +196,34 @@ public class RoadTrainApp {
 							this.car.head = trans;
 						}
 					}
-					else if(this.car.truck != null && Integer.parseInt(buf[buf.length - 4]) == 0){
+					System.out.println(this.car.truck == null);
+					System.out.println(Integer.parseInt(buf[buf.length - 4]));
+					if(this.car.truck != null && Integer.parseInt(buf[buf.length - 4]) == 0){
 						this.car.speed = Integer.parseInt(buf[buf.length - 1]);
 						this.talk(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
 					}
-					else if(this.car.head.id == Integer.parseInt(buf[buf.length - 4])){
+					System.out.println("Check_7 " + this.car.truck == null);
+					if(this.car.truck == null && this.car.head.id == Integer.parseInt(buf[buf.length - 4])){
 						this.car.speed = Integer.parseInt(buf[buf.length - 1]);
 						this.talk(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
 					}
-					System.out.println("It's Here");
+					System.out.println("Check_8 " + this.car.truck == null);
 				}	
 			}catch(Exception e){
-			
+				System.out.println(e.toString());	
 			}
 			}
 		}
 	}
 
-	public boolean joinTrain()
+	public boolean joinTrain() throws IOException
 	{
 		this.car.location[1] = 1;
 		this.car.speed = 45;
 		while(true)
 		{
 			String msg = this.listen();
+			this.update_config();
 			if(!msg.equals(""))
 			{
 				System.out.println("Joined MSG: "+ msg + "Location " + this.car.location[0] + " " + this.car.location[1]);
@@ -230,6 +233,7 @@ public class RoadTrainApp {
 					this.car.speed = 43;
 					while(true)
 					{
+						this.update_config();
 						System.out.println(this.car.location + " " + msg);
 						msg = this.listen();
 						if(!msg.equals(""))
@@ -241,6 +245,8 @@ public class RoadTrainApp {
 								this.car.speed = 40;
 								this.talk("Joined~" + this.id + "~" + this.car.location[0] + "~" 
 										+ "~" + this.car.location[1] + "~" + this.car.speed);
+								this.car.truck = new Truck(0,10100);
+								System.out.println(this.car.truck == null);
 								return true;
 							}
 						}
@@ -290,82 +296,62 @@ public class RoadTrainApp {
 	{
 		//Read in the file
 		ArrayList<String> lines = new ArrayList<String>();
-
 		Scanner file_scan = new Scanner(config_File);
+		int index = 10;
+		String links = "";
+		String edit_Line = "";
+		String[] buf = null;
 		//adds each line of the file to the list of lines
-		while(file_scan.hasNext()){
+		while(file_scan.hasNext() && index != 0)
+		{
+			index--;
 			lines.add(file_scan.nextLine());
 		}
 		//closes the original scanner
 		file_scan.close();
-		String links = "links";
+		Iterator<String> itr = lines.iterator();
 		//loops through each line to determine the distance from itself to that line.
-		for(int i = 0; i < lines.size(); i++){
-			Scanner line_scan = new Scanner(lines.get(i));
-			int car_id = line_scan.nextInt();
-			line_scan.next();
-			line_scan.next();
-			int x_val = line_scan.nextInt();
-
+		while(itr.hasNext())
+		{
+			buf = itr.next().split(" ");
+			if(Integer.parseInt(buf[0]) != this.id)
+			{
 				if(this.truck == null)
-				{
-					if(car_id != id){
-						int d = x_val - this.car.location[0];
-						if(d < 80 && d > -80){
-							links += " " + Integer.toString(i);
-						}
+				{	
+					if(Integer.parseInt(buf[3]) - this.car.location[0] < 80 && Integer.parseInt(buf[3]) - this.car.location[0] > -80)
+					{
+						links += Integer.parseInt(buf[0]) + " ";
 					}
 				}
 				else
 				{
-					if(car_id != id){
-						int d = x_val - this.truck.location[0];
-						if(d < 80 && d > -80){
-							links += " " + Integer.toString(i);
-						}
+					if(Integer.parseInt(buf[3]) - this.truck.location[0] < 80 && Integer.parseInt(buf[3]) - this.truck.location[0] > -80)
+					{
+						links += Integer.parseInt(buf[0]) + " ";
 					}
 				}
-			line_scan.close();
-		}
-
-
-		//Prepare each line to be written to the file
-
-		Scanner scan = new Scanner(lines.get(id));
-
-		if(this.truck == null)
-		{
-			String new_line = scan.next() + " " + scan.next() + " " +scan.next()+ " " + Integer.toString(this.car.location[0]) +" "+ Integer.toString(this.car.location[1]) + " " + links;
-			lines.set(id, new_line);
-
-		}
-		else
-		{
-			String new_line = scan.next() + " " + scan.next() + " " +scan.next() +" " + Integer.toString(this.truck.location[0]) +" "+ Integer.toString(this.truck.location[1]) + " " + links;
-			lines.set(id, new_line);
-		}
-
-		try{
-			this.lock = new RandomAccessFile(config_File, "rw").getChannel().tryLock();
-			if (this.lock != null)
-			{
-				PrintWriter clear = new PrintWriter(config_File);
-				clear.print("");
-				clear.close();
-				PrintWriter write = new PrintWriter(config_File);
-				for(int i = 0; i<lines.size(); i++){
-					write.println(lines.get(i));
-				}
-				write.close();
-			}
-		}catch(Exception e){
-		}finally{
-			if(this.lock != null)
-			{
-				this.lock.release();
 			}
 		}
-}
+		if(! lines.isEmpty())
+		{
+			buf = lines.get(this.id).split(" ");
+			if(this.truck == null)
+				edit_Line = buf[0] + " " + buf[1] + " " + buf[2] + " " + Integer.toString(this.car.location[0]) + " " + Integer.toString(this.car.location[1]) + " " + buf[5] + " " +  links;
+			else
+				edit_Line = buf[0] + " " + buf[1] + " " + buf[2] + " " + Integer.toString(this.truck.location[0]) + " " + Integer.toString(this.truck.location[1]) + " " + buf[5] + " " + links; 
+			lines.set(this.id, edit_Line);
+
+			PrintWriter clear = new PrintWriter(config_File);
+			clear.print("");
+			clear.close();
+			PrintWriter write = new PrintWriter(config_File);
+			for(int i = 0; i<lines.size(); i++){
+				write.println(lines.get(i));
+			}
+			write.close();
+		}
+		
+	}
 	
 	public void setConfigFilePosition() throws IOException
 	{
