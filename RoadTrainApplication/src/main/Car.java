@@ -64,10 +64,8 @@ public class Car implements Runnable{
 			buf = itr.next().split(" ");
 			if(Integer.parseInt(buf[0]) != this.id)
 			{	
-				if(Integer.parseInt(buf[3]) - this.location[0] < 100 && Integer.parseInt(buf[3]) - this.location[0] > -100)
-				{
+				if(Integer.parseInt(buf[3]) - this.location[0] < 120 && Integer.parseInt(buf[3]) - this.location[0] > -120)
 					links += buf[0] + " ";
-				}
 			}
 		}
 		if(! lines.isEmpty())
@@ -75,6 +73,13 @@ public class Car implements Runnable{
 			buf = lines.get(this.id).split(" ");
 			edit_Line = buf[0] + " " + buf[1] + " " + buf[2] + " " + Integer.toString(this.location[0]) + " " + Integer.toString(this.location[1]) + " " + buf[5] + " " +  links;
 			lines.set(this.id, edit_Line);
+			System.out.println(lines.get(0));
+			buf = lines.get(0).split(" ");
+			if(Integer.parseInt(buf[3]) < this.location[0] && ! this.join)
+				{
+				this.speed = 38;
+				this.location[1] = 1;
+				}
 			PrintWriter clear = new PrintWriter(config_File);
 			clear.print("");
 			clear.close();
