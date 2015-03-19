@@ -219,7 +219,7 @@ public class RoadTrainApp {
 			if(!msg.equals("") && ! old_Message.equals(msg.trim()) && !msg.contains("Make_Room~")
 			{
 				String[] status = msg.split("~");
-				if(Integer.parseInt(status[1]) - this.car.location[0] < 15 && Integer.parseInt(status[1]) - this.car.location[0] > 5)
+				if(Integer.parseInt(status[1]) - this.car.location[0] < 25 && Integer.parseInt(status[1]) - this.car.location[0] > 5)
 				{
 					this.car.location[1] = 0;
 					this.car.speed = 40;
