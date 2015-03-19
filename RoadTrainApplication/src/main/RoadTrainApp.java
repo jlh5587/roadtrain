@@ -19,7 +19,6 @@ public class RoadTrainApp {
 		try{
 			this.setConfigFilePosition();
 			rba = new RBA(this.id, port, config);
-			this.ignition();
 		} catch (Exception e){
 			System.out.println(e.toString());
 		}
