@@ -76,14 +76,15 @@ public class RBA {
 				parsePacket(packetInfo);
 				//System.out.println("from: " + currentSender + " message: " + currentMessage);
 				checkShouldForward();
-				
+				return currentMessage;	
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				//e.printStackTrace();
 			}
+			
 		//}
             
-            return currentMessage;
+            return "";
 	}
 	
 	
