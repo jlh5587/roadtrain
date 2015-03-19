@@ -216,7 +216,7 @@ public class RoadTrainApp {
 		while(true)
 		{
 			String msg = this.listen();
-			if(!msg.equals("") && ! old_Message.equals(msg.trim()))
+			if(!msg.equals("") && ! old_Message.equals(msg.trim()) && !msg.contains("Make_Room~")
 			{
 				String[] status = msg.split("~");
 				if(Integer.parseInt(status[1]) - this.car.location[0] < 15 && Integer.parseInt(status[1]) - this.car.location[0] > 5)
