@@ -47,11 +47,11 @@ public class MPR {
         	socket.receive(receivePacket);
 			
 			String packetInfo = new String(receivePacket.getData());
-			//System.out.println(packetInfo);
+			
 			parsePacket(packetInfo);
-			//System.out.println("from: " + currentSender + " message: " + currentMessage);
+			
 			if(currentPacketType == 1){
-				
+				//handle hello message
 			}else if(currentPacketType == 2){
 				//check if you are an MPR and then forward if necessary
 				/*IF MPR -> sendMessageAsMPR(packetInfo)*/
