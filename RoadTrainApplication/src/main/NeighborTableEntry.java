@@ -1,17 +1,25 @@
-
 public class NeighborTableEntry {
 
-	String status;
-	
-	public NeighborTableEntry(String status){
+	NeighborStatus status;
+	Integer[] twoHopNeighbors;
+
+	public NeighborTableEntry(NeighborStatus status){
 		this.status = status;
 	}
-	
-	public String getStatus(){
+
+	public NeighborStatus getStatus(){
 		return status;
 	}
-	
-	public void setStatus(String status){
+
+	public void setStatus(NeighborStatus status){
 		this.status = status;
+	}
+
+	public Integer[] getTwoHopNeighbors() {
+		return this.twoHopNeighbors;
+	}
+
+	public void setTwoHopNeighbors(Integer[] thns) {
+		this.twoHopNeighbors = thns;
 	}
 }
