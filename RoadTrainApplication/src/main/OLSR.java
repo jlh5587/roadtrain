@@ -38,6 +38,7 @@ public class OLSR {
 		socket = new DatagramSocket(port);
 	}
 	
+	//This is the method used to listen for a message
 	public String listenForMessage(){
 		byte[] recieved = new byte[4096];
 		
@@ -70,6 +71,43 @@ public class OLSR {
         return "";
 	}
 	
+	//This is the broadcast method that is called from the app layer
+	public void broadcast(String message){
+		String packetInfo = "2,"+ user + ","+ numMessageCreated+","+user+","+0+","+message;
+		numMessageCreated++;
+		
+		//We will need to add a check to see if this user is an MPR. If they are, then we will
+		//use a different method to send the packet.
+		sendNewMessage(packetInfo);
+	}
+	
+	//This is called to send the hello message beacon
+	public void sendHello(String helloMessage){
+		ArrayList<Integer> connects = findForwardConnections();
+		
+		for(int i = 0; i<connects.size(); i++){
+			if(computerInfoTable.containsKey(connects.get(i))){
+				sendHelloMessage(computerInfoTable.get(connects.get(i)), helloMessage);
+			}else{
+				computerInfoTable.put(connects.get(i), compInfo(connects.get(i)));
+				sendHelloMessage(computerInfoTable.get(connects.get(i)), helloMessage);
+			}
+			
+		}
+	}
+	
+	public void setListen(boolean listen){
+		this.listen = listen;
+	}
+	
+	public void closeSocket(){
+		socket.close();
+	}
+	
+	
+	
+	//Private methods used to cache, parse and send packets
+	
 	private void cacheMessage(){
 		cacheTable.get(currentSender).setLastHop(user);
 		cacheTable.get(currentSender).setMessage(currentMessage);
@@ -98,27 +136,13 @@ public class OLSR {
 		
 		packetScanner.close();
 	}
-	
-	
-	public void sendHello(){
-		ArrayList<Integer> connects = findForwardConnections();
+
 		
-		for(int i = 0; i<connects.size(); i++){
-			if(computerInfoTable.containsKey(connects.get(i))){
-				sendHelloMessage(computerInfoTable.get(connects.get(i)));
-			}else{
-				computerInfoTable.put(connects.get(i), compInfo(connects.get(i)));
-				sendHelloMessage(computerInfoTable.get(connects.get(i)));
-			}
-			
-		}
-	}
-	
-	public void sendHelloMessage(ComputerInfo c){
+	private void sendHelloMessage(ComputerInfo c, String helloMessage){
 		try{
 			
 			//The Hello String should be added to to send the appropriate information to the other nodes.
-			String packetInfo = "1,"+ user + ","+ currentSeqNum+","+user+","+0+","+"Hello"; 
+			String packetInfo = "1,"+ user + ","+ currentSeqNum+","+user+","+0+","+helloMessage; 
 		
 			byte[] sendData = new byte[4096];
 			sendData = packetInfo.getBytes();
@@ -145,7 +169,7 @@ public class OLSR {
 		 
 	//Sends newMessages to MPR's based on status in neighbor table.
 	
-public void sendMessageAsMPR(String packetInfo){
+	private void sendMessageAsMPR(String packetInfo){
 		
 		try{
 			 byte[] sendData = new byte[4096];
@@ -187,7 +211,7 @@ public void sendMessageAsMPR(String packetInfo){
 		 } 
 	}
 	
-	public void sendNewMessage(String packetInfo){
+	private void sendNewMessage(String packetInfo){
 		
 		try{
 			 byte[] sendData = new byte[4096];
@@ -237,19 +261,10 @@ public void sendMessageAsMPR(String packetInfo){
 		 } 
 	}
 	
-	//This is the broadcast method that is called from the app layer
-	public void broadcast(String message){
-		String packetInfo = "2,"+ user + ","+ numMessageCreated+","+user+","+0+","+message;
-		numMessageCreated++;
-		
-		//We will need to add a check to see if this user is an MPR. If they are, then we will
-		//use a different method to send the packet.
-		sendNewMessage(packetInfo);
-	}
 	
 	
 	//Finds the connections based on the config file
-	public ArrayList<Integer> findForwardConnections(){
+	private ArrayList<Integer> findForwardConnections(){
 		ArrayList<Integer> toForward = new ArrayList<Integer>();
 		
 		Scanner scanFile;
@@ -294,7 +309,7 @@ public void sendMessageAsMPR(String packetInfo){
 	}
 	
 	
-	public ComputerInfo compInfo(int id){
+	private ComputerInfo compInfo(int id){
 		String compNm = "";
 		Scanner scanFile;
 		try {
@@ -325,14 +340,6 @@ public void sendMessageAsMPR(String packetInfo){
 					e.printStackTrace();
 		}
 		return null;
-	}
-
-	public void setListen(boolean listen){
-		this.listen = listen;
-	}
-	
-	public void closeSocket(){
-		socket.close();
 	}
 	
 }
