@@ -10,11 +10,11 @@ public class Car implements Runnable{
 	public int speed = 0;
 	public int[] location = {0,0};
 	public int port = 0;
-	public int dest = 999999999;
-	public Car head = null, tail = null;
+	public int dest = -1;
+	public Car head = null;
 	public Truck truck = null;
 	public int id = 0;
-	public boolean join = false;
+	public int status = 0;
 	public File config_File = null;
 	
 	public Car(int id, int port, File config_File){
@@ -34,12 +34,14 @@ public class Car implements Runnable{
 					Thread.sleep(2000);
 					location[0] += speed + speed;
 					this.update_config();
+					System.out.println(dest);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		}
 	}
+
 	public void update_config() throws IOException
 	{
 		//Read in the file
@@ -70,16 +72,48 @@ public class Car implements Runnable{
 		}
 		if(! lines.isEmpty())
 		{
-			buf = lines.get(this.id).split(" ");
-			edit_Line = buf[0] + " " + buf[1] + " " + buf[2] + " " + Integer.toString(this.location[0]) + " " + Integer.toString(this.location[1]) + " " + buf[5] + " " +  links;
+		  if(status == 0)
+		  {
+		      if(Integer.parseInt(lines.get(0).split(" ")[3]) - this.location[0] < 5)
+		          this.speed = 18;
+		      else
+		          this.speed = 23;
+		  }
+		  else if(status == 1)
+		  {
+		  	if(this.head != null)
+		  	{
+		  		System.out.println(this.head.id);
+		  	}
+		      if(this.truck != null && Integer.parseInt(lines.get(0).split(" ")[3]) - this.location[0] > 100)
+		          this.speed = 23;
+		      else if(this.truck != null && Integer.parseInt(lines.get(0).split(" ")[3]) - this.location[0] < 5)
+		          this.speed = 18;
+		      else if(this.head != null && Integer.parseInt(lines.get(this.head.id).split(" ")[3]) - this.location[0] < 5)
+		          this.speed = 18;
+		      else if(this.head != null && Integer.parseInt(lines.get(this.head.id).split(" ")[3]) - this.location[0] > 100)
+		          this.speed = 23;
+		      else
+		          this.speed = 20;
+		   }
+		   else if(status == 2)
+		   {
+		      buf = lines.get(this.id).split(" ");
+		      edit_Line = buf[0] + " " + buf[1] + " " + buf[2] + " " + Integer.toString(-1) + " " + Integer.toString(-1) + " " + buf[5] + " " +  links;
+		   }
+		  else if(status == 4)
+		          this.speed = 19;
+		  else if(status == 5)
+		      this.speed = 21;
+		   
+		   if (status != 2)
+		   {
+		   buf = lines.get(this.id).split(" ");
+		   edit_Line = buf[0] + " " + buf[1] + " " + buf[2] + " " + Integer.toString(this.location[0]) + " " + Integer.toString(this.location[1]) + " " + buf[5] + " " +  links;
+		   }
+		
 			lines.set(this.id, edit_Line);
-			System.out.println(lines.get(0));
-			buf = lines.get(0).split(" ");
-			if(Integer.parseInt(buf[3]) < this.location[0] && ! this.join)
-				{
-				this.speed = 38;
-				this.location[1] = 1;
-				}
+
 			PrintWriter clear = new PrintWriter(config_File);
 			clear.print("");
 			clear.close();
@@ -88,6 +122,8 @@ public class Car implements Runnable{
 				write.println(lines.get(i));
 			}
 			write.close();
+			if(this.status == 2)
+				System.exit(0);
 		}
 		
 	}
