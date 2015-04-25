@@ -23,6 +23,18 @@ public class RoadTrainApp {
 			System.out.println(e.toString());
 		}
 	}
+
+		public RoadTrainApp(int port, File config, String leave){
+		this.config_File = config;
+		this.port = port;
+		try{
+			this.setConfigFilePosition();
+			this.car.dest = Integer.valueOf(leave);
+			rba = new RBA(this.id, port, config);
+		} catch (Exception e){
+			System.out.println(e.toString());
+		}
+	}
 	
 
 	public void setVehicle(boolean isTruck, int x, int y)
@@ -30,7 +42,7 @@ public class RoadTrainApp {
 			if (isTruck)
 			{
 				this.truck = new Truck(id,port,this.config_File);
-				this.truck.speed = 40;
+				this.truck.speed = 20;
 				this.truck.location[0] = x;
 				this.truck.location[1] = y;
 				this.joined_Train = true;
@@ -40,150 +52,147 @@ public class RoadTrainApp {
 				this.car = new Car(id,port,this.config_File);
 				this.car.location[0] = x;
 				this.car.location[1] = y;
-				car.speed = 45;
+				car.speed = 25;
 			}
-			
 		}
 	
+
+
+
 	public void ignition() throws IOException
 	{
+		// If this is the truck then it will run the following lines 
 		if(this.id == 0)
 		{
 			Thread drive = new Thread(this.truck);
 			drive.start();
 			int lock_Enter = 0;
-			String old_message = "";
+			String joined_Vics = "";
 			while(true)
 			{
-				String msg = this.listen();
-				if(! msg.equals("") && ! old_message.equals(msg.trim()))
+				String msg = this.listen().trim();
+				if(! msg.equals(""))
 				{
 					String[] buffer_message = msg.split("~");
-					old_message = msg.trim();
-					System.out.println(msg + " Lock: " + lock_Enter);
+					System.out.println("Lock: " + lock_Enter);
 					if(buffer_message[0].equals("Enter") && (lock_Enter == 0 || Integer.parseInt(buffer_message[1]) == lock_Enter))
 					{
 						lock_Enter = Integer.parseInt(buffer_message[1]);
-						this.talk("Granted" + "~" + this.id + "~" + this.truck.location[0] 
-								+ "~" + this.truck.location[1] + "~" + this.truck.speed 
-								+ "~" + buffer_message[1]);
+						for(int i = 0; i < 5; i++)
+							this.talk("Granted" + "~" + this.id + "~" + this.truck.location[0] 
+									+ "~" + this.truck.location[1] + "~" + this.truck.speed 
+									+ "~" + buffer_message[1]);
 						if((this.truck).tail != null)
 						{
-							this.talk("Make_Room~"+ this.truck.tail.id);
+							for(int i = 0; i < 5; i++)
+								this.talk("Make_Room~"+ this.truck.tail.id + "~0~0~0~0~0");
 						}
 					}
-					else if(buffer_message[0].equals("Joined"))
+					else if(buffer_message[0].equals("Joined") && lock_Enter != 0)
 					{
-						System.out.println("Yeah we made it here");
 						this.truck.tail = new Car(Integer.parseInt(buffer_message[1]));
 						lock_Enter = 0;
+						joined_Vics += "~" + buffer_message[1];
 					}
 					else if(buffer_message[0].equals("Dueces"))
 					{
-						this.talk("GoodBye~" + buffer_message[1]);
+						this.talk("GoodBye~" + buffer_message[1]+ "~0~0~0~0~0");
 						if(buffer_message[1].equals(this.truck.id))
 						{
 							this.truck.tail = new Car(Integer.parseInt(buffer_message[3]));
 						}
 					}
+					else if(buffer_message[0].equals("Out"))
+					   {
+					      String temp = buffer_message[1];
+    				      buffer_message = joined_Vics.split("~");
+    				      joined_Vics = "";
+		                  for(int i = 0; i < buffer_message.length; i++)
+		                  {
+		                  	if(!temp.equals(buffer_message[i]))
+		                  	   joined_Vics += buffer_message[i] + "~";
+		                  }
+					   }
 					else
 						this.talk(this.id + "~" + this.truck.location[0] + "~" + this.truck.location[1] + "~" + this.truck.speed);
 				}
-				this.talk(this.id + "~" + this.truck.location[0] + "~" + this.truck.location[1] + "~" + this.truck.speed);
+				this.talk(this.id + "~" + this.truck.location[0] + "~" + this.truck.location[1] + "~" + this.truck.speed + joined_Vics);
 			}
 		}
-	
+		// if this is a car then it will run these lines
 		else
 		{
 		Thread drive = new Thread(this.car);
 		drive.start();
-		String old_Message = "";
 		while(! this.joined_Train)
 		{
-			String msg = this.listen();
-			if(!msg.equals("") && ! old_Message.equals(msg.trim()))
+			String msg = this.listen().trim();
+			if(!msg.equals(""))
 			{
 				String[] buf = msg.split("~");
-				old_Message = msg.trim();
 				if(Integer.parseInt(buf[buf.length - 3]) - this.car.location[0] < 100 && Integer.parseInt(buf[buf.length - 3]) - this.car.location[0] > 10)
 				{
+					
+					this.car.speed = 20;
 					while(!joined_Train)
 					{
-						this.car.speed = 40;
-						this.talk("Enter~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
-						for(int i = 0; i < 50; i++)
+						long t = System.currentTimeMillis();
+						long end = t + 2000;
+						while(System.currentTimeMillis() < end && ! joined_Train){}
+						
+						for(int i = 0; i < 5; i++)
+							this.talk("Enter~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
+						msg = this.listen().trim();
+						if (! msg.equals("")) 
 						{
-							msg = this.listen();
-							if (! msg.equals("") && ! old_Message.equals(msg.trim())) 
-							{
-								old_Message = msg.trim();
-								buf = msg.split("~");
-								if(buf[0].equals("Granted") && buf[buf.length - 1].trim().equals(String.valueOf(this.id)))
-								{	
-									joined_Train = this.joinTrain();
-									i = 50;
-								}	
-							}
-						}
-						int j = 50;
-						while(j > 0 && ! this.car.join)
-						{
-							this.car.speed = 41;
-							j--;
+							buf = msg.split("~");
+							if(buf[0].trim().equals("Granted") && buf[buf.length - 1].trim().equals(String.valueOf(this.id)))
+								joined_Train = this.joinTrain();
 						}
 					}
 				}
-				else if(this.car.location[0] > this.car.dest)
+				else if(this.car.dest > 0 && this.car.location[0] > this.car.dest)
 				{
 					this.leaveTrain();
 				}
 			}
-			this.talk(this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
 		}
 		while(true)
 		{
 			try{
-				String msg = this.listen();
-				if(! msg.equals("") && ! old_Message.equals(msg.trim()))
+				String msg = this.listen().trim();
+				if(! msg.equals(""))
 				{
-					System.out.println(msg);
-					old_Message = msg.trim();
 					String[] buf = msg.split("~");
-					if(this.car.location[0] > this.car.dest)
+					if(this.car.dest > 0 && this.car.location[0] > this.car.dest)
 					{
 						this.leaveTrain();
 					}
-					else if(buf[0].equals("Make_Room") && Integer.parseInt(buf[1]) != this.id && this.car.truck != null)
+					else if(buf[0].trim().equals("Make_Room") && Integer.valueOf(buf[1]) != this.id)
 					{
-						long t = System.currentTimeMillis();
-						long end = t + 5000;
-						this.car.speed = 35;
-						while(System.currentTimeMillis() < end) {
-							this.talk(this.id + "~" + this.car.location[0] + "~" 
-									+ this.car.location[1] + "~" + this.car.speed);
-						}
-						this.car.speed = 40;
+					   this.car.status = 4;
+					   long t = System.currentTimeMillis();
+					   long end = t + 10000;
+					   while(System.currentTimeMillis() < end) {}
+					   this.car.status = 1;
+						
 					}
-					else if(buf[0].equals("Joined") && Integer.parseInt(buf[1]) != this.id && this.car.truck != null)
+					else if(buf[0].trim().equals("0") && this.car.truck != null && Arrays.asList(buf).contains(Integer.toString(this.car.id)) && !buf[buf.length - 1].equals(Integer.toString(this.car.id)))
 					{
-						Car head = new Car(Integer.parseInt(buf[1]));
+						Car head = new Car(Integer.parseInt(buf[buf.length - 1]));
 						this.car.head = head;
 						this.car.truck = null;
 					}
-					else if(buf[0].equals("Out") && Integer.parseInt(buf[1]) != this.id && buf[1].equals(car.head.id))
+					else if(buf[0].equals("Out") && this.car.truck == null)
 					{
+					    this.car.status = 5;
 						long t = System.currentTimeMillis();
-						long end = t + 5000;
-						this.car.speed = 45;
-						while(System.currentTimeMillis() < end) 
+						long end = t + 10000;
+						while(System.currentTimeMillis() < end){}
+						this.car.status = 1;
+						if(this.car.head != null && buf[1].equals(Integer.toString(this.car.head.id)))
 						{
-							this.talk(this.id + "~" + this.car.location[0] + "~" 
-									+ this.car.location[1] + "~" + this.car.speed);
-						}
-						this.car.speed = 40;
-						if(buf[2].equals("0"))
-						{
-							Truck trans = new Truck(Integer.parseInt(buf[2]));
+							Truck trans = new Truck(0);
 							this.car.truck = trans;
 						}
 						else
@@ -192,57 +201,49 @@ public class RoadTrainApp {
 							this.car.head = trans;
 						}
 					}
-					else if(this.car.truck != null && Integer.parseInt(buf[buf.length - 4]) == 0){
-						System.out.println(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
-						this.car.speed = Integer.parseInt(buf[buf.length - 1]);
-						this.talk(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
-					}
-					else if(this.car.truck == null && this.car.head.id == Integer.parseInt(buf[buf.length - 4])){
-						this.car.speed = Integer.parseInt(buf[buf.length - 1]);
-						this.talk(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
-					}
-				}	
-			}catch(Exception e){
-			}
-			}
+					this.talk(this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
+				}
+			}catch(Exception e){System.out.println(e.toString());}
 		}
 	}
+}
 
 	public boolean joinTrain() throws IOException
 	{
 		this.car.location[1] = 1;
-		this.car.speed = 43;
-		String old_Message = "";
+		this.car.speed = 23;
 		while(true)
 		{
-			String msg = this.listen();
-			if(!msg.equals("") && ! old_Message.equals(msg.trim()) && !msg.contains("Make_Room~")
+			String msg = this.listen().trim();
+			if(!msg.equals("") && !msg.contains("Make_Room~"))
 			{
 				String[] status = msg.split("~");
-				if(Integer.parseInt(status[1]) - this.car.location[0] < 25 && Integer.parseInt(status[1]) - this.car.location[0] > 5)
+				if(Integer.parseInt(status[1]) - this.car.location[0] < 10 && Integer.parseInt(status[1]) - this.car.location[0] > 3)
 				{
 					this.car.location[1] = 0;
-					this.car.speed = 40;
-					this.talk("Joined~" + this.id + "~" + this.car.location[0]
-								+ "~" + this.car.location[1] + "~" + this.car.speed);
+					this.car.speed = 20;
+					for(int i = 0; i < 10; i++)
+						this.talk("Joined~" + this.id + "~" + this.car.location[0]
+									+ "~" + this.car.location[1] + "~" + this.car.speed);
 					this.car.truck = new Truck(0);
-					this.car.join = true;
+					this.car.status = 1;
 					return true;
 				}
-				else if(Integer.parseInt(status[1]) - this.car.location[0] < 5)
-					this.car.speed = 38;
-				else if(Integer.parseInt(status[1]) - this.car.location[0] > 15)
-					this.car.speed = 43;
+				else if(Integer.parseInt(status[1]) - this.car.location[0] < 3)
+					this.car.speed = 18;
+				else if(Integer.parseInt(status[1]) - this.car.location[0] > 10)
+					this.car.speed = 23;
 			}
 		}
 	}
 	
-	public boolean leaveTrain() throws IOException
+	public void leaveTrain() throws IOException
 	{
-		this.talk("Dueces~" + this.id);
+		for(int i = 0; i < 10; i++)
+			this.talk("Dueces~" + this.id + "~0~0~0~0~0~0~0");
 		while(true)
 		{
-			String msg = this.listen();
+			String msg = this.listen().trim();
 			String[] buf = msg.split("~");
 			if(buf[0].equals("GoodBye") && Integer.parseInt(buf[1]) == this.id)
 			{
@@ -252,22 +253,10 @@ public class RoadTrainApp {
 		this.car.speed = 0;
 		this.car.location[1] = -1;
 		this.joined_Train = false;
-		if(this.car.tail == null)
-		{
-			if(this.car.head.truck == null)
-				this.talk("Out~" + this.id + "~" + this.car.head.id);
-			else
-				this.talk("Out~" + this.id + "~" + this.car.truck.id);
-			return true;
-		}
-		else
-		{
-			if(this.car.truck == null)
-				this.talk("Out~" + this.id + "~" + this.car.head.id);
-			else
-				this.talk("Out~" + this.id + "~" + this.car.truck.id);
-			return true;
-		}
+		for(int i = 0; i < 5; i++)
+			this.talk("Out~" + this.id + "~0~0~0~0~0~0~0~0");
+		this.car.status = 2;
+		System.exit(0);
 	}
 	
 	public void setConfigFilePosition() throws IOException
@@ -301,11 +290,14 @@ public class RoadTrainApp {
 	
 	public String listen()
 	{
-		return rba.listenForMessage();
+		String check = rba.listenForMessage();
+		System.out.println(check);
+		return check;
 	}
-	
+
 	public void talk(String msg)
 	{
+		System.out.println(msg);
 		rba.broadcast(msg);
 	}
 }
