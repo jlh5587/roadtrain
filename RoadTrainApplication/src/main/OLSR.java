@@ -10,9 +10,6 @@ import java.util.Hashtable;
 import java.util.Scanner;
 import java.util.Set;
 
-
-
-
 public class OLSR {
 
 	Hashtable<Integer, TableEntry> cacheTable;
@@ -38,8 +35,13 @@ public class OLSR {
 		socket = new DatagramSocket(port);
 	}
 	
-	//This is the method used to listen for a message
+	//This is what the app layer will call to listen for a message
 	public String listenForMessage(){
+		this.listenForMessage(2);
+	}
+	
+	//This is what the MPR will use to listen for a message
+	public String listenForMessage(int i){
 		byte[] recieved = new byte[4096];
 		
 		DatagramPacket receivePacket = new DatagramPacket(recieved, recieved.length);
@@ -49,18 +51,19 @@ public class OLSR {
 			
 			String packetInfo = new String(receivePacket.getData());
 			parsePacket(packetInfo);
-			if(currentPacketType == 1){
+			if(currentPacketType == 1 && i==1){
 				//Here is where you will call the method that handles the hello message
-				
+				return currentMessage;
 			}else if(currentPacketType == 2){
 				//check if you are an MPR and then forward if necessary
 				/*IF MPR -> sendMessageAsMPR(packetInfo)*/
 				if(cacheTable.get(currentSender).getSeqNum() <= currentSeqNum){
 					cacheMessage();
 				}
+				return currentMessage;
 			}
 			
-			return currentMessage;	
+				
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
@@ -142,7 +145,7 @@ public class OLSR {
 		try{
 			
 			//The Hello String should be added to to send the appropriate information to the other nodes.
-			String packetInfo = "1,"+ user + ","+ currentSeqNum+","+user+","+0+","+helloMessage; 
+			String packetInfo = "1,"+ user + ","+ currentSeqNum+","+user+","+0+", HELLO, " user, ","+helloMessage; 
 		
 			byte[] sendData = new byte[4096];
 			sendData = packetInfo.getBytes();
