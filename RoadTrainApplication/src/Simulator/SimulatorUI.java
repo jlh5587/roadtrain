@@ -1,8 +1,9 @@
-package Simulator;
+//package Simulator;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Author: Carlos Lemus
@@ -31,48 +32,54 @@ public class SimulatorUI extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        int currentYPos = FRAME_HEIGHT/3;
-        int currentXPos = FRAME_WIDTH/2;
+        // settings for relative positioning
+        int initialXPos = FRAME_WIDTH / 3;
+        int currentXPos = initialXPos;
+
+	int initialYPos = FRAME_HEIGHT / 2;
+        int currentYPos = initialYPos;
+
         int frontPos = 0;
 
+        // make nodes green
         g.setColor(Color.green);
 
+        // draw all the nodes
         for (VirtualVanetNode vvn : nodeList) {
-            if (vvn.nodeIndex == 1) {
-                frontPos = vvn.y;
-                System.out.print("Front node position: " + frontPos);
-            }
+          // if first node, this takes role of "front" node
+          if (vvn.nodeIndex == 1) {
+              frontPos = vvn.x;
+          }
+          // current Y is relative to front node
+          currentXPos = initialXPos + vvn.x - frontPos;
+    	    // configure lane positioning
+    	    currentYPos = vvn.lane == 0 ? initialYPos : (initialYPos-25);
 
-            currentYPos += (vvn.y - frontPos);
-            g.fillOval(currentXPos, currentYPos, 10, 10);
+          g.fillOval(currentXPos, currentYPos, 10, 10);
 
-            System.out.print("\nDrawing " + vvn.nodeIndex + " " + vvn.y);
-            System.out.print(" at " + (vvn.y - frontPos) + "\n\n");
+      		//print node label
+      	    g.drawString("Node " + vvn.nodeIndex, currentXPos-10, currentYPos+30);
+      		//print x, y coordinates
+      	    g.drawString((Integer.toString(vvn.x) + "m"), currentXPos-10, currentYPos+45);
+            g.drawString(("Lane " + Integer.toString(vvn.lane)), currentXPos-10, currentYPos+55);
         }
     }
 
     public void update_ui(ArrayList<VirtualVanetNode> nodeListIn) {
-
         // point internal node list to the new updated node list.
         this.nodeList = nodeListIn;
         // have it paint components based on the node list
         repaint();
-
-//
-//        for (VirtualVanetNode vvn : nodeList) {
-//            System.out.print("Node ");
-//            System.out.print(vvn.nodeIndex + " ");
-//            System.out.print(vvn.networkName);
-//            System.out.print(":");
-//            System.out.print(vvn.port);
-//            System.out.print(" links ");
-//            for (Integer i : vvn.links) {
-//                System.out.print(i);
-//            }
-//            System.out.print("\n");
-//        }
-//        System.out.println("--------------------------------------");
     }
+
+    // private Color getRandomColor() {
+    //   Random rand = new Random();
+    //   float r = rand.nextFloat();
+    //   float g = rand.nextFloat();
+    //   float b = rand.nextFloat();
+    //
+    //   return new Color(r, g, b);
+    // }
 
 
 }

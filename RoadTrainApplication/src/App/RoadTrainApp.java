@@ -1,4 +1,4 @@
-package App;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -6,66 +6,62 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import Vehicle.Car;
-import Vehicle.Truck;
-import RBA.RBA;
-
 public class RoadTrainApp {
-	int port, position;
+	int port, position, id;
 	RBA rba;
 	Truck truck;
 	Car car;
-	String config_name = "", id = "";
+	String config_name = "";
 	File config_File = null;
 	boolean joined_Train = false;
 		
-	public RoadTrainApp(boolean isTruck, String id, int port, File config){
-		setVehicle(isTruck);
+	public RoadTrainApp(int port, File config){
 		this.config_File = config;
-		this.id = id;
 		this.port = port;
 		try{
-			rba = new RBA(id, port);
+			this.setConfigFilePosition();
+			rba = new RBA(this.id, port, config);
 		} catch (Exception e){
 		}
 	}
 	
-	public void setVehicle(boolean isTruck)
+
+	public void setVehicle(boolean isTruck, int x, int y)
 		{
 			if (isTruck)
 			{
-				truck = new Truck(id,port);
-				truck.speed = 40;
+				this.truck = new Truck(id,port);
+				this.truck.speed = 40;
+				this.truck.location[0] = x;
+				this.truck.location[1] = y;
 				this.joined_Train = true;
 			}
 			else
 			{
-				car = new Car(id,port);
-				car.speed = 40;
+				this.car = new Car(id,port);
+				this.car.location[0] = x;
+				this.car.location[0] = y;
+				car.speed = 45;
 			}
 			
 		}
 	
-	public void ignition(boolean isTruck) throws IOException
+	public void ignition() throws IOException
 	{
-		Thread message = new Thread((Runnable) this.rba);
-		message.start();
-		
-		if(isTruck)
+		if(this.id == 0)
 		{
-			Thread drive = new Thread((Runnable) this.truck);
-			drive.start();
 			while(true)
 			{
 				String msg = this.listen();
-				String[] buffer_message = msg.substring(1, msg.length() - 1).split("~");
+				System.out.println(msg);
+				String[] buffer_message = msg.split("~");
 				this.update_config();
 				if(buffer_message[0].equals("Enter"))
 				{
 					this.talk("Granted" + "~" + this.id + "~" + this.truck.location[0] 
 							+ "~" + this.truck.location[1] + "~" + this.truck.speed 
 							+ buffer_message[1]);
-					if(((Truck) this.truck).tail != null)
+					if((this.truck).tail != null)
 					{
 						this.talk("Make_Room~"+ this.truck.tail.id);
 					}
@@ -73,14 +69,14 @@ public class RoadTrainApp {
 				
 				else if(buffer_message[0].equals("Joined"))
 				{
-					this.truck.tail = new Car(buffer_message[1]);
+					this.truck.tail = new Car(Integer.parseInt(buffer_message[1]));
 				}
 				else if(buffer_message[0].equals("Dueces"))
 				{
 					this.talk("GoodBye~" + buffer_message[1]);
 					if(buffer_message[1].equals(this.truck.id))
 					{
-						this.truck.tail = new Car(buffer_message[3]);
+						this.truck.tail = new Car(Integer.parseInt(buffer_message[3]));
 					}
 				}
 				else
@@ -90,17 +86,19 @@ public class RoadTrainApp {
 	
 		else
 		{
-		Thread drive = new Thread((Runnable) this.car);
+		Thread drive = new Thread(this.car);
 		drive.start();
 		while(!this.joinTrain())
 		{
+			System.out.println(this.car.location[0]);
 			String msg = this.listen();
-			String[] buf = msg.substring(1, msg.length() - 1).split("~");
+			System.out.println(msg);
+			String[] buf = msg.split("~");
 			if(Integer.parseInt(buf[buf.length - 3]) < 100)
 			{
 				this.talk("Enter~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
 			}
-			if(buf[0].equals("Granted") && buf[buf.length - 1].equals(this.id))
+			if(buf[0].equals("Granted") && Integer.getInteger(buf[buf.length - 1]) == this.id)
 			{
 				this.joinTrain();
 			}
@@ -113,7 +111,7 @@ public class RoadTrainApp {
 		while(true)
 		{
 			String msg = this.listen();
-			String[] buf = msg.substring(1, msg.length() - 1).split("~");
+			String[] buf = msg.split("~");
 			this.update_config();
 			if(this.car.location[0] > this.car.dest)
 			{
@@ -132,7 +130,7 @@ public class RoadTrainApp {
 			}
 			else if(buf[0].equals("Joined") && this.car.truck != null)
 			{
-				Car head = new Car(buf[1]);
+				Car head = new Car(Integer.parseInt(buf[1]));
 				this.car.head = head;
 				this.car.truck = null;
 			}
@@ -147,24 +145,22 @@ public class RoadTrainApp {
 							+ this.car.location[1] + "~" + this.car.speed);
 				}
 				this.car.speed = 40;
-				if(buf[2].equals("Truck"))
+				if(buf[2].equals("0"))
 				{
-					Truck trans = new Truck(buf[2]);
+					Truck trans = new Truck(Integer.parseInt(buf[2]));
 					this.car.truck = trans;
 				}
 				else
 				{
-					Car trans = new Car(buf[2]);
+					Car trans = new Car(Integer.parseInt(buf[2]));
 					this.car.head = trans;
 				}
 			}
-			else if((buf[buf.length() - 5].equals(this.car.head.id) && this.truck == null) 
-			|| (buf[buf.length() - 5].equals(this.truck.id))
-			{
+			else if(buf[msg.length() - 5].equals(this.car.id)){
 			this.car.speed = Integer.parseInt(buf[buf.length - 1]);
 			this.talk(msg + "~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
-		}
-		}
+			}	
+			}
 		}
 	}
 
@@ -202,8 +198,8 @@ public class RoadTrainApp {
 		while(true)
 		{
 			String msg = this.listen();
-			String[] buf = msg.substring(1, msg.length() - 1).split("~");
-			if(buf[0].equals("GoodBye") && buf[1].equals(this.id))
+			String[] buf = msg.split("~");
+			if(buf[0].equals("GoodBye") && Integer.parseInt(buf[1]) == this.id)
 			{
 			break;
 			}
@@ -269,19 +265,25 @@ public class RoadTrainApp {
 				String[] buf = check.split(" ");
 				check = "";
 				if(this.truck == null)
-					buf[3] =  Integer.toString(this.car.location[1]);
+				{
+					buf[3] =  Integer.toString(this.car.location[0]);
+					buf[4] = Integer.toString(this.car.location[1]);
+				}
 				else
-					buf[3] =  Integer.toString(this.truck.location[1]);
+				{
+					buf[3] =  Integer.toString(this.truck.location[0]);
+					buf[4] = Integer.toString(this.truck.location[1]);
+				}
 				
 				for(int i = 0; i < buf.length; i++)
 				{
 					check += buf[i] + " ";
 				}
 				
-				if(this.joined_Train && !buf[buf.length - 1].equals("connected"))
-					check += "connected";
-				else if (!this.joined_Train && buf[buf.length - 1].equals("connected"))
-					check = check.substring(0, check.length() - " connected".length());
+			//	if(this.joined_Train && !buf[buf.length - 1].equals("connected"))
+			//		check += "connected";
+			//	else if (!this.joined_Train && buf[buf.length - 1].equals("connected"))
+			//		check = check.substring(0, check.length() - " connected".length());
 			}
 			byte[] conent = check.getBytes();
 			out.write(conent);
@@ -306,12 +308,25 @@ public class RoadTrainApp {
 			}
 			else
 			{
-				if (buffer != "" && buffer.substring(0, 5).equals(this.id))
+				if (buffer != "")
 				{
-					break;
+					String[] buffer_string = buffer.split(" ");
+					if(Integer.parseInt(buffer_string[2]) == this.port)
+					{
+						this.id = Integer.parseInt(buffer_string[0]);
+						if(this.id == 0)
+						{
+							this.setVehicle(true,Integer.parseInt(buffer_string[3]),Integer.parseInt(buffer_string[4]));
+						}
+						else
+						{
+							this.setVehicle(true,Integer.parseInt(buffer_string[3]),Integer.parseInt(buffer_string[4]));
+						}
+						break;
+					}
 				}
-				position++;
 				buffer = "";
+				this.position++;
 			}
 		}
 			in.close();
@@ -319,12 +334,12 @@ public class RoadTrainApp {
 	
 	public String listen()
 	{
-		return rba.getMessage();
+		return rba.getCurrentMessage();
 	}
 	
 	public void talk(String msg)
 	{
-		rba.sendMessage(msg);
+		rba.broadcast(msg);
 	}
 }
 

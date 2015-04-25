@@ -1,4 +1,4 @@
-package RBA;
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,8 +17,9 @@ import java.util.Scanner;
 
 public class RBA {
 	ArrayList<TableEntry> cache;
-	String currentMessage = "New message", newMessage;
+	String currentMessage = "", newMessage;
 	int currentSeqNum, currentLastHop, currentTimesForwarded, currentUser, currentSender, numMessageCreated = 1;
+	int droppedPackets = 0, messageRec = 0;
 	DatagramSocket socket;
 	boolean listen;
 	File configFile;
@@ -67,19 +68,23 @@ public class RBA {
 		//while(listen){
 			DatagramPacket receivePacket = new DatagramPacket(recieved, recieved.length);
             try {
-				socket.receive(receivePacket);
+            	socket.setSoTimeout(1000);
+            	socket.receive(receivePacket);
+				
 				String packetInfo = new String(receivePacket.getData());
 				//System.out.println(packetInfo);
 				parsePacket(packetInfo);
+				//System.out.println("from: " + currentSender + " message: " + currentMessage);
 				checkShouldForward();
-				
+				return currentMessage;	
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
+			
 		//}
             
-            return currentMessage;
+            return "";
 	}
 	
 	
@@ -102,32 +107,36 @@ public class RBA {
 	//Forwards the message to connecting cars.
 	public void forwardMessage(){
 		 String packetInfo = currentSender + ","+ currentSeqNum+","+currentUser+","+(currentTimesForwarded+1)+","+currentMessage;
-		 byte[] sendData = new byte[4096];
-		 sendData = packetInfo.getBytes();
-		 
-		 ArrayList<Integer> forwardConn = findForwardConnections();
-		 String compName = "localhost";
-		 int port = 9876;
-		 
-		 for(int i = 0; i<forwardConn.size();i++){
-		 	
-		 	if(currentLastHop != i){
-				 compID c = compInfo(forwardConn.get(i));
-				 compName = c.getName();
-				 port = c.getPort();
-				
-				 //For testing purposes. These IP addresses will need to come from the config file.
-				InetAddress IPAddress;
-				try {
-					IPAddress = InetAddress.getByName(compName);
-					DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-					socket.send(sendPacket);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		 	}
-		}
+		 try{
+			 byte[] sendData = new byte[4096];
+			 sendData = packetInfo.getBytes();
+			 
+			 ArrayList<Integer> forwardConn = findForwardConnections();
+			 String compName;
+			 int port;
+			 
+			 for(int i = 0; i<forwardConn.size();i++){
+			 	if(currentLastHop != i && currentSender != i){
+					 compID c = compInfo(forwardConn.get(i));
+					 compName = c.getName();
+					 port = c.getPort();
+					
+					 //For testing purposes. These IP addresses will need to come from the config file.
+					InetAddress IPAddress;
+					try {
+						IPAddress = InetAddress.getByName(compName);
+						DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+						socket.send(sendPacket);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			 	}
+			}
+		 }catch(Exception e){
+		 //	System.out.println(packetInfo);
+		 //	System.out.println(e.toString());
+		 }
 		 
 		 
 		 
@@ -169,35 +178,62 @@ public class RBA {
 	}
 	
 	private boolean cacheMessage(){	
-		cache.get(currentSender -1).setMessage(currentMessage);
-		cache.get(currentSender-1).setLastHop(currentUser);
-		cache.get(currentSender-1).setNumOfForwards(currentTimesForwarded+1);
-		cache.get(currentSender-1).setSeqNum(currentSeqNum);
-		return true;
+		for(int i = 0; i < cache.size(); i++){
+			if(cache.get(i).getSender() == currentSender){
+				cache.get(i).setMessage(currentMessage);
+				cache.get(i).setLastHop(currentUser);
+				cache.get(i).setNumOfForwards(currentTimesForwarded+1);
+				messageRec++;
+				if(cache.get(i).getSeqNum() < currentSeqNum -1){
+					droppedPackets++;
+					System.out.println("Num of packets recieved: " + messageRec);
+					System.out.println("Dropped Packets: " + droppedPackets);
+					
+				}
+				
+				cache.get(i).setSeqNum(currentSeqNum);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	
-	public void sendNewMessage(String message, int reciever){
+	public void sendNewMessage(String packetInfo){
 		
-		//Used a ',' delimited file... The packet contains sender, seqNum, lastHop, times forwarded, message
-		String newPacket = currentUser + ","+ numMessageCreated+ ",-1,0," + message;
-		byte[] send = new byte[4096];
-		send = newPacket.getBytes();
-		
-		compID c = compInfo(reciever);
-		String name = c.getName();
-		int port = c.getPort();
-		
-		try {
-			InetAddress IPAddress = InetAddress.getByName(name);
-			DatagramPacket sendPacket = new DatagramPacket(send, send.length, IPAddress, port);
-			socket.send(sendPacket);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		numMessageCreated++;
+		try{
+			 byte[] sendData = new byte[4096];
+			 sendData = packetInfo.getBytes();
+			 
+			 ArrayList<Integer> forwardConn = findForwardConnections();
+			 String compName;
+			 int port;
+			 
+			 for(int i = 0; i<forwardConn.size();i++){
+			 	
+				 compID c = compInfo(forwardConn.get(i));
+				 compName = c.getName();
+				 port = c.getPort();
+				
+				 //For testing purposes. These IP addresses will need to come from the config file.
+				InetAddress IPAddress;
+				try {
+					IPAddress = InetAddress.getByName(compName);
+					DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+					socket.send(sendPacket);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			 	
+			}
+		 }catch(Exception e){
+		 	System.out.println(packetInfo);
+		 	System.out.println(e.toString());
+		 }
+		 
+		 
+		 
 	}
 	
 	public void setListen(boolean listen){
@@ -215,12 +251,11 @@ public class RBA {
 		try {
 			scanFile = new Scanner(configFile);
 			
-			while(scanFile.hasNext()){
+			while(scanFile.hasNext()){			
 				String line = scanFile.nextLine();
-				
 				Scanner scanLine = new Scanner(line);
 				
-				
+					
 					int car = scanLine.nextInt();
 					
 					if(car == currentUser){
@@ -228,9 +263,12 @@ public class RBA {
 							if(scanLine.next().equals("links")){
 								while(scanLine.hasNext()){
 									toForward.add(scanLine.nextInt());
+							
 								}
+							 
 							}
 						}
+						break;
 					}
 				
 				
@@ -243,7 +281,7 @@ public class RBA {
 			
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+		//	e.printStackTrace();
 		}
 
 		return toForward;
@@ -268,8 +306,6 @@ public class RBA {
 						compNm = scanLine.next();
 						int port = scanLine.nextInt();
 						scanLine.close();
-						
-						
 						return (new compID(compNm, port));
 						
 					}
@@ -291,8 +327,9 @@ public class RBA {
 	}
 	
 	public void broadcast(String message){
-		currentMessage = message;
-		forwardMessage();
+		String packetInfo = currentUser + ","+ numMessageCreated+","+currentUser+","+0+","+message;
+		numMessageCreated++;
+		sendNewMessage(packetInfo);
 	}
 
 }

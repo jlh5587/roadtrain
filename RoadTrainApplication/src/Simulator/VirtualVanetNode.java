@@ -1,4 +1,4 @@
-package Simulator;
+//package Simulator;
 
 import java.util.ArrayList;
 
@@ -10,6 +10,6 @@ public class VirtualVanetNode {
     public short nodeIndex;
     public String networkName;
     public int port;
-    public short x, y;
+    public short x, lane;
     public ArrayList<Integer> links;
 }

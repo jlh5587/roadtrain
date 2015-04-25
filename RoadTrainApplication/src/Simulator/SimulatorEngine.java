@@ -1,4 +1,4 @@
-package Simulator;
+//package Simulator;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -47,7 +47,7 @@ public class SimulatorEngine {
         vvn.networkName = tokens[2];
         vvn.port = (short) Integer.parseInt(tokens[3]);
         vvn.x = (short) Integer.parseInt(tokens[4]);
-        vvn.y = (short) Integer.parseInt(tokens[5]);
+        vvn.lane = (short) Integer.parseInt(tokens[5]);
         vvn.links = new ArrayList<Integer>();
 
         try {

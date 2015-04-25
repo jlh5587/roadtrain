@@ -8,15 +8,15 @@ public class Car implements Vehicle, Runnable{
 	public int dest = 999999999;
 	public Car head = null, tail = null;
 	public Truck truck = null;
-	public String id = "";
+	public int id = 0;
 	boolean join = false;
 	
-	public Car(String id, int port){
+	public Car(int id, int port){
 		this.id = id;
 		this.port = port;
 	}
 	
-	public Car(String id){
+	public Car(int id){
 		this.id = id;
 	}
 
