@@ -87,7 +87,7 @@ public class RoadTrainApp {
 								this.talk("Make_Room~"+ this.truck.tail.id + "~0~0~0~0~0");
 						}
 					}
-					else if(buffer_message[0].equals("Joined") && lock_Enter != 0)
+					else if(buffer_message[0].equals("Joined") && lock_Enter != 0 && !Arrays.asList(joined_Vics.split("~")).contains(buffer_message[1]))
 					{
 						this.truck.tail = new Car(Integer.parseInt(buffer_message[1]));
 						lock_Enter = 0;
@@ -134,20 +134,27 @@ public class RoadTrainApp {
 					
 					this.car.speed = 20;
 					while(!joined_Train)
-					{
-						long t = System.currentTimeMillis();
-						long end = t + 2000;
-						while(System.currentTimeMillis() < end && ! joined_Train){}
-						
+					{	
 						for(int i = 0; i < 5; i++)
 							this.talk("Enter~" + this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
-						msg = this.listen().trim();
-						if (! msg.equals("")) 
+
+						long t = System.currentTimeMillis();
+						long end = t + 10000;
+						while(System.currentTimeMillis() < end && ! joined_Train)
 						{
-							buf = msg.split("~");
-							if(buf[0].trim().equals("Granted") && buf[buf.length - 1].trim().equals(String.valueOf(this.id)))
-								joined_Train = this.joinTrain();
+							msg = this.listen().trim();
+							if (! msg.equals("")) 
+							{
+								buf = msg.split("~");
+								if(buf[0].trim().equals("Granted") && buf[buf.length - 1].trim().equals(String.valueOf(this.id)))
+								{
+									joined_Train = this.joinTrain();
+									break;
+								}
+
+							}
 						}
+
 					}
 				}
 				else if(this.car.dest > 0 && this.car.location[0] > this.car.dest)
@@ -200,7 +207,10 @@ public class RoadTrainApp {
 							this.car.head = trans;
 						}
 					}
-					this.talk(this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed);
+					if(this.car.truck != null && Integer.parseInt(buf[0]) == 0)
+						this.talk(this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed + "~" + msg);
+					else if (this.car.head != null && this.car.head.id == Integer.parseInt(buf[0]))
+						this.talk(this.id + "~" + this.car.location[0] + "~" + this.car.location[1] + "~" + this.car.speed + "~" + msg);
 				}
 			}catch(Exception e){System.out.println(e.toString());}
 		}
@@ -209,6 +219,7 @@ public class RoadTrainApp {
 
 	public boolean joinTrain() throws IOException
 	{
+		this.car.status = 3;
 		this.car.location[1] = 1;
 		this.car.speed = 23;
 		while(true)
