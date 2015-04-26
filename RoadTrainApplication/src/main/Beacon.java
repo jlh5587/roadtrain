@@ -25,16 +25,16 @@ public class Beacon{
 		for(Integer key: keys){
 			if(neighborTable.get(key).getStatus() == NeighborStatus.BIDIRECTIONAL)
 			{
-				bidirection = bidirection +","+ key;
+				bidirection = bidirection +"~"+ key;
 			} else if(neighborTable.get(key).getStatus() == NeighborStatus.UNIDIRECTIONAL){
-				unidirection = unidirection + ","+ key ;
+				unidirection = unidirection + "~"+ key ;
 			}
 			//Others can be added as needed
 		}
 
 		//In the OLSR layer I can provide who it comes from.
 		//and example of the message would be  1,b,2,3,5,u,1
-		String message = "b" + bidirection + ",u" + unidirection;
+		String message = "b" + bidirection + "~u" + unidirection;
 		System.out.println("Beacon message: " + message);
 		olsr.sendHello(message);
 	}

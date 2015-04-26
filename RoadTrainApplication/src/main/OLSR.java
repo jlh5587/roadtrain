@@ -163,7 +163,7 @@ public class OLSR {
         	mprs.findMprs(this.neighborTable);
             //The Hello String should be added to to send the appropriate information to the other nodes.
             String packetInfo = "1," + user + "," + currentSeqNum + "," + user + "," + 0 + ","
-            + user + ","+mprs.getHelloMprs()+","+ helloMessage;
+            + user +"~"+ helloMessage + "~"+mprs.getHelloMprs();
 
             byte[] sendData = new byte[4096];
             sendData = packetInfo.getBytes();
@@ -237,27 +237,20 @@ public class OLSR {
             byte[] sendData = new byte[4096];
             sendData = packetInfo.getBytes();
 
-            ArrayList<Integer> mprs = new ArrayList<Integer>();
-
-            Set<Integer> keys = neighborTable.keySet();
-            for (Integer key : keys) {
-                if (neighborTable.get(key).status.equals("MPR")) {
-                    mprs.add(key);
-                }
-            }
-
-
+            
+            ArrayList<Integer> m = mprs.getMprs();
+            
             String compName;
             int port;
 
-            for (int i = 0; i < mprs.size(); i++) {
+            for (int i = 0; i < m.size(); i++) {
 
                 ComputerInfo c;
-                if (computerInfoTable.containsKey(mprs.get(i))) {
-                    c = computerInfoTable.get(mprs.get(i));
+                if (computerInfoTable.containsKey(m.get(i))) {
+                    c = computerInfoTable.get(m.get(i));
                 } else {
-                    computerInfoTable.put(mprs.get(i), compInfo(mprs.get(i)));
-                    c = computerInfoTable.get(mprs.get(i));
+                    computerInfoTable.put(m.get(i), compInfo(m.get(i)));
+                    c = computerInfoTable.get(m.get(i));
                 }
 
                 compName = c.getName();
@@ -402,6 +395,7 @@ public class OLSR {
 
     private Integer getNeighborID(String helloMessage) {
         Scanner parser = new Scanner(helloMessage);
+        parser.useDelimiter("~");
         Integer neighborID = parser.nextInt();
         parser.close();
 
@@ -412,17 +406,19 @@ public class OLSR {
 
         Hashtable<Integer, NeighborStatus> neighborLinks = new Hashtable<Integer, NeighborStatus>();
         Scanner parser = new Scanner(hm);
+        parser.useDelimiter("~");
 
         ArrayList<Integer> bLinks = new ArrayList<Integer>();
 
         Integer neighborID = parser.nextInt();
 
         //gather bidirectional links
-        Integer currentBDLink = parser.nextInt();
+        String currentBDLink = parser.next();
+        currentBDLink = parser.next();
         //get bidirectional links until u is found
-        while (currentBDLink != 'u') {
-            bLinks.add(currentBDLink);
-            currentBDLink = parser.nextInt();
+        while (! currentBDLink.equals("u")) {
+            bLinks.add(Integer.parseInt(currentBDLink));
+            currentBDLink = parser.next();
         }
 
         for (Integer bLink : bLinks) {
@@ -432,11 +428,11 @@ public class OLSR {
         //gather unidirectional links
         ArrayList<Integer> uLinks = new ArrayList<Integer>();
         // at this point unidirectional links should start being parsed
-        Integer currentUDLink = parser.nextInt();
+        String currentUDLink = parser.next();
         //get bidirectional links until u is found
-        while (currentUDLink != 'm') {
-            uLinks.add(currentUDLink);
-            currentUDLink = parser.nextInt();
+        while (! currentUDLink.equals("m")) {
+            uLinks.add(Integer.parseInt(currentUDLink));
+            currentUDLink = parser.next();
         }
 
         for (Integer uLink : uLinks) {
@@ -447,11 +443,11 @@ public class OLSR {
         //gather MPR links
         ArrayList<Integer> mprLinks = new ArrayList<Integer>();
         // at this point unidirectional links should start being parsed
-        Integer currentMPRLink = parser.nextInt();
+        String currentMPRLink = parser.next();
         //get bidirectional links until u is found
-        while (currentMPRLink != 'm') {
-            mprLinks.add(currentMPRLink);
-            currentMPRLink = parser.nextInt();
+        while (parser.hasNext()) {
+            mprLinks.add(Integer.parseInt(currentMPRLink));
+            currentMPRLink = parser.next();
         }
 
         for (Integer mprLink : mprLinks) {
