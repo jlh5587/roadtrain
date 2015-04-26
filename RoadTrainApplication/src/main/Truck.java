@@ -12,11 +12,15 @@ public class Truck implements Runnable {
 	public Car tail = null;
 	public int id = 0;
 	public File config_File = null;
+	private OLSR olsr;
+	private Beacon beacon;
 
-	public Truck(int id, int port, File config_File){
+	public Truck(int id, int port, File config_File, OLSR olsr){
 		this.id = id;
 		this.port = port;
 		this.config_File = config_File;
+		this.olsr = olsr;
+		beacon = new Beacon(id, olsr);
 	}
 	
 	public Truck(int id){
@@ -29,6 +33,8 @@ public class Truck implements Runnable {
 				Thread.sleep(2000);
 				this.update_config();
 				location[0] += speed + speed;
+				beacon.setNeighborTable(olsr.getNeighborTable());
+				beacon.sendHelloMessage();
 				} catch (Exception e) {
 					e.printStackTrace();
 				} 

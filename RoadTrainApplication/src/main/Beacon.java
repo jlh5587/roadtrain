@@ -1,7 +1,7 @@
 import java.util.Hashtable;
 import java.util.Set;
 
-public class Beacon implements Runnable{
+public class Beacon{
 	
 	int user;
 	Hashtable<Integer, NeighborTableEntry> neighborTable;
@@ -11,25 +11,12 @@ public class Beacon implements Runnable{
 	public Beacon(int user, OLSR olsr){
 		this.user = user;
 		this.olsr = olsr;
+		neighborTable = new Hashtable<Integer, NeighborTableEntry>();
 	}
 	
 	public void setNeighborTable(Hashtable<Integer, NeighborTableEntry> neighborTable){
 		this.neighborTable = neighborTable;
 	}
-	
-	public void run(){
-		while(true){
-			try{
-				Thread.sleep(3000);
-				sendHelloMessage();
-				
-			}catch(Exception e){
-				
-			}
-			
-		}
-	}
-	
 	
 	public void sendHelloMessage(){
 		Set<Integer> keys = neighborTable.keySet();
@@ -51,6 +38,4 @@ public class Beacon implements Runnable{
 
 		olsr.sendHello(message);
 	}
-	
-	
 }

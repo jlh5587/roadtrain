@@ -24,8 +24,8 @@ public class OLSR {
     int messageRec, droppedPackets;
     MPR mprs;
     ArrayList<Integer> mprSelector;
-    Beacon beacon;
-    Thread b;
+    //Beacon beacon;
+    //Thread b;
 
     public OLSR(int user, int port, File configFile) throws SocketException {
 
@@ -39,7 +39,7 @@ public class OLSR {
         socket = new DatagramSocket(port);
         mprs = new MPR(user);
         mprSelector = new ArrayList<Integer>();
-        this.beacon();
+        //this.beacon();
     }
 
     //This is what the app layer will call to listen for a message
@@ -62,7 +62,7 @@ public class OLSR {
                 //Here is where you will call the method that handles the hello message
             	handleHelloMessage(currentMessage);
             	mprs.findMprs(neighborTable);
-            	beacon.setNeighborTable(neighborTable);
+            	//beacon.setNeighborTable(neighborTable);
                 return currentMessage;
             } else if (currentPacketType == 2) {
                 //check if you are an MPR and then forward if necessary
@@ -117,6 +117,10 @@ public class OLSR {
 
     public void closeSocket() {
         socket.close();
+    }
+    
+    public Hashtable<Integer, NeighborTableEntry> getNeighborTable(){
+    	return neighborTable;
     }
 
 
@@ -460,10 +464,10 @@ public class OLSR {
     
     
     /**Beacon**/
-    
+    /*
     public void beacon(){
     	beacon = new Beacon(user, this);
     	b = new Thread(beacon);
     	b.run();
-    }
+    }*/
 }

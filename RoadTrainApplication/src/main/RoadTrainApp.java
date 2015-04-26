@@ -41,7 +41,7 @@ public class RoadTrainApp {
 		{
 			if (isTruck)
 			{
-				this.truck = new Truck(id,port,this.config_File);
+				this.truck = new Truck(id,port,this.config_File, this.olsr);
 				this.truck.speed = 20;
 				this.truck.location[0] = x;
 				this.truck.location[1] = y;
@@ -49,7 +49,7 @@ public class RoadTrainApp {
 			}
 			else
 			{
-				this.car = new Car(id,port,this.config_File);
+				this.car = new Car(id,port,this.config_File, this.olsr);
 				this.car.location[0] = x;
 				this.car.location[1] = y;
 				car.speed = 25;

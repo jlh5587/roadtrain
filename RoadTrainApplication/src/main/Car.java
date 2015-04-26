@@ -16,11 +16,16 @@ public class Car implements Runnable{
 	public int id = 0;
 	public int status = 0;
 	public File config_File = null;
+	private OLSR olsr;
+	private Beacon beacon;
 	
-	public Car(int id, int port, File config_File){
+	public Car(int id, int port, File config_File, OLSR olsr){
 		this.id = id;
 		this.port = port;
 		this.config_File = config_File;
+		this.olsr = olsr;
+		
+		beacon = new Beacon(id, olsr);
 	}
 	
 	public Car(int id){
@@ -34,6 +39,8 @@ public class Car implements Runnable{
 					Thread.sleep(2000);
 					location[0] += speed + speed;
 					this.update_config();
+					beacon.setNeighborTable(olsr.getNeighborTable());
+					beacon.sendHelloMessage();
 					System.out.println(dest);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
