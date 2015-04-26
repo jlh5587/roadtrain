@@ -22,6 +22,10 @@ public class OLSR {
     boolean listen;
     DatagramSocket socket;
     int messageRec, droppedPackets;
+    MPR mprs;
+    ArrayList<Integer> mprSelector;
+    Beacon beacon;
+    Thread b;
 
     public OLSR(int user, int port, File configFile) throws SocketException {
 
@@ -33,11 +37,14 @@ public class OLSR {
         numMessageCreated = 1;
         listen = true;
         socket = new DatagramSocket(port);
+        mprs = new MPR(user);
+        mprSelector = new ArrayList<Integer>();
+        this.beacon();
     }
 
     //This is what the app layer will call to listen for a message
     public String listenForMessage() {
-        this.listenForMessage(2);
+        return this.listenForMessage(2);
     }
 
     //This is what the MPR will use to listen for a message
@@ -53,11 +60,17 @@ public class OLSR {
             parsePacket(packetInfo);
             if (currentPacketType == 1 && i == 1) {
                 //Here is where you will call the method that handles the hello message
+            	handleHelloMessage(currentMessage);
+            	mprs.findMprs(neighborTable);
+            	beacon.setNeighborTable(neighborTable);
                 return currentMessage;
             } else if (currentPacketType == 2) {
                 //check if you are an MPR and then forward if necessary
                 /*IF MPR -> sendMessageAsMPR(packetInfo)*/
                 if (cacheTable.get(currentSender).getSeqNum() <= currentSeqNum) {
+                	if(mprSelector.contains(currentSender)){
+                		sendMessageAsMPR(packetInfo);
+                	}
                     cacheMessage();
                 }
                 return currentMessage;
@@ -141,10 +154,10 @@ public class OLSR {
 
     private void sendHelloMessage(ComputerInfo c, String helloMessage) {
         try {
-
+        	mprs.findMprs(this.neighborTable);
             //The Hello String should be added to to send the appropriate information to the other nodes.
-            String packetInfo = "1," + user + "," + currentSeqNum + "," + user + "," + 0 + ", HELLO, "
-            + user + "," + helloMessage;
+            String packetInfo = "1," + user + "," + currentSeqNum + "," + user + "," + 0 + ","
+            + user + ","+mprs.getHelloMprs()+","+ helloMessage;
 
             byte[] sendData = new byte[4096];
             sendData = packetInfo.getBytes();
@@ -194,7 +207,7 @@ public class OLSR {
                 compName = c.getName();
                 port = c.getPort();
 
-                //For testing purposes. These IP addresses will need to come from the config file.
+                
                 InetAddress IPAddress;
                 try {
                     IPAddress = InetAddress.getByName(compName);
@@ -353,6 +366,14 @@ public class OLSR {
         if (neighborLinks.containsKey(user)) {
             nte.setStatus(NeighborStatus.BIDIRECTIONAL);
         }
+        
+        //This will check and add to MPR selector
+        if (neighborLinks.containsKey(user)) {
+            if(neighborLinks.get(user) == NeighborStatus.MPR && !mprSelector.contains(neighborID)){
+            	mprSelector.add(neighborID);
+            }
+        }
+        
 
         ArrayList<Integer> nte2HopLinks = new ArrayList<Integer>();
         if (nte.getStatus() == NeighborStatus.BIDIRECTIONAL) {
@@ -434,5 +455,15 @@ public class OLSR {
         parser.close();
 
         return neighborLinks;
+    }
+    
+    
+    
+    /**Beacon**/
+    
+    public void beacon(){
+    	beacon = new Beacon(user, this);
+    	b = new Thread(beacon);
+    	b.run();
     }
 }
