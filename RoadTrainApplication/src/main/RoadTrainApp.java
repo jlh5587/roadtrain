@@ -17,8 +17,8 @@ public class RoadTrainApp {
 		this.config_File = config;
 		this.port = port;
 		try{
-			this.setConfigFilePosition();
 			olsr = new OLSR(this.id, port, config);
+			this.setConfigFilePosition();
 		} catch (Exception e){
 			System.out.println(e.toString());
 		}

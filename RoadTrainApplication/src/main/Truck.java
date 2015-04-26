@@ -33,11 +33,23 @@ public class Truck implements Runnable {
 				Thread.sleep(2000);
 				this.update_config();
 				location[0] += speed + speed;
-				beacon.setNeighborTable(olsr.getNeighborTable());
-				beacon.sendHelloMessage();
-				} catch (Exception e) {
+			} catch (Exception e) {
 					e.printStackTrace();
-				} 
+			}
+			
+			try{
+				beacon.setNeighborTable(olsr.getNeighborTable());
+				//beacon.sendHelloMessage();
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			try{
+				//beacon.setNeighborTable(olsr.getNeighborTable());
+				beacon.sendHelloMessage();
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		
 	}

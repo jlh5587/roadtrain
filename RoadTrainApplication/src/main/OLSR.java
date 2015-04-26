@@ -58,6 +58,7 @@ public class OLSR {
 
             String packetInfo = new String(receivePacket.getData());
             parsePacket(packetInfo);
+            System.out.println("packet heard: " + packetInfo);
             if (currentPacketType == 1 && i == 1) {
                 //Here is where you will call the method that handles the hello message
             	handleHelloMessage(currentMessage);

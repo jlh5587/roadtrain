@@ -35,7 +35,7 @@ public class Beacon{
 		//In the OLSR layer I can provide who it comes from.
 		//and example of the message would be  1,b,2,3,5,u,1
 		String message = "b" + bidirection + ",u" + unidirection;
-
+		System.out.println("Beacon message: " + message);
 		olsr.sendHello(message);
 	}
 }

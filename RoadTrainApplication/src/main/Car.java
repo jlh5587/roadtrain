@@ -39,13 +39,25 @@ public class Car implements Runnable{
 					Thread.sleep(2000);
 					location[0] += speed + speed;
 					this.update_config();
-					beacon.setNeighborTable(olsr.getNeighborTable());
-					beacon.sendHelloMessage();
 					System.out.println(dest);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				
+				try{
+					beacon.setNeighborTable(olsr.getNeighborTable());
+					//beacon.sendHelloMessage();
+				}catch(Exception e){
+					
+				}
+				try{
+					//beacon.setNeighborTable(olsr.getNeighborTable());
+					beacon.sendHelloMessage();
+				}catch(Exception e){
+					
+				}
+				
 		}
 	}
 
