@@ -6,7 +6,7 @@ import java.util.*;
 
 public class RoadTrainApp {
 	int port, id;
-	RBA rba;
+	OLSR olsr;
 	Truck truck;
 	Car car;
 	String config_name = "";
@@ -18,7 +18,7 @@ public class RoadTrainApp {
 		this.port = port;
 		try{
 			this.setConfigFilePosition();
-			rba = new RBA(this.id, port, config);
+			olsr = new OLSR(this.id, port, config);
 		} catch (Exception e){
 			System.out.println(e.toString());
 		}
@@ -30,7 +30,7 @@ public class RoadTrainApp {
 		try{
 			this.setConfigFilePosition();
 			this.car.dest = Integer.valueOf(leave);
-			rba = new RBA(this.id, port, config);
+			olsr = new OLSR(this.id, port, config);
 		} catch (Exception e){
 			System.out.println(e.toString());
 		}
@@ -290,7 +290,7 @@ public class RoadTrainApp {
 	
 	public String listen()
 	{
-		String check = rba.listenForMessage();
+		String check = olsr.listenForMessage();
 		System.out.println(check);
 		return check;
 	}
@@ -298,6 +298,6 @@ public class RoadTrainApp {
 	public void talk(String msg)
 	{
 		System.out.println(msg);
-		rba.broadcast(msg);
+		olsr.broadcast(msg);
 	}
 }
