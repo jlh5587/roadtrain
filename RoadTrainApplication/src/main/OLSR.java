@@ -31,6 +31,7 @@ public class OLSR {
 
         cacheTable = new Hashtable<Integer, TableEntry>();
         neighborTable = new Hashtable<Integer, NeighborTableEntry>();
+        computerInfoTable = new Hashtable<Integer, ComputerInfo>();
         this.configFile = configFile;
         this.user = user;
         currentSeqNum = 0;
