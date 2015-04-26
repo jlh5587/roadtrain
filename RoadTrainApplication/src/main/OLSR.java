@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.Random;
 
 public class OLSR {
 
@@ -61,17 +62,20 @@ public class OLSR {
                 //Here is where you will call the method that handles the hello message
             	handleHelloMessage(currentMessage);
             	mprs.findMprs(neighborTable);
+            	checkShouldCache();
             	//beacon.setNeighborTable(neighborTable);
                 return "";
             } else if (currentPacketType == 2) {
                 //check if you are an MPR and then forward if necessary
                 /*IF MPR -> sendMessageAsMPR(packetInfo)*/
                 if(mprSelector.contains(currentSender)){
+                	if(checkShouldCache())
                 		sendMessageAsMPR(packetInfo);
+                }else{
+                	checkShouldCache();
                 }
                 
-                checkShouldCache();
-                
+                           
                     
                 //cacheMessage();
                 
@@ -122,6 +126,13 @@ public class OLSR {
     }
     
     public Hashtable<Integer, NeighborTableEntry> getNeighborTable(){
+    	mprs.findMprs(this.neighborTable);
+    	ArrayList<Integer> mps = mprs.getMprs();
+    	
+    	for(int i = 0; i < mps.size(); i++){
+    		neighborTable.get(mps.get(i)).setStatus(NeighborStatus.MPR);
+    	}
+    	
     	return neighborTable;
     }
 
@@ -183,7 +194,19 @@ private boolean checkShouldCache(){
 		
 			//Checks sequence number. If it's the same, it uses the RBA to determine if it should be forwarded
 			if(currentSeqNum == cache.get(cacheLoc).getSeqNum()){
-				return true;
+				int forwards = cache.get(cacheLoc).getNumOfForwards();
+				double probability = 1;
+				
+				for(int i = 1; i <= forwards; i++){
+					probability = probability/2;
+				}
+				
+				if(new Random().nextDouble() <= probability){
+					cache.get(cacheLoc).setNumOfForwards(forwards+1);
+					return true;
+				}
+				
+				
 				//if the current sequence number is greater, then it automatically caches the message and forwards it.	
 			} else if (currentSeqNum > cache.get(cacheLoc).getSeqNum()){
 					cacheMessage();
@@ -199,6 +222,7 @@ private boolean checkShouldCache(){
 			return true;
 		}
 		
+		return false;
 	}
 
     private void parsePacket(String packetInfo) {
@@ -223,7 +247,7 @@ private boolean checkShouldCache(){
         	mprs.findMprs(this.neighborTable);
             //The Hello String should be added to to send the appropriate information to the other nodes.
             String packetInfo = "1," + user + "," + numMessageCreated + "," + user + "," + 0 + ","
-            + user +"~"+ helloMessage + "~"+mprs.getHelloMprs();
+            + user +"~"+ helloMessage;// + "~"+mprs.getHelloMprs();
 
             numMessageCreated++;
             
