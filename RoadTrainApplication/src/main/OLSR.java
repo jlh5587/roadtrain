@@ -43,13 +43,10 @@ public class OLSR {
         //this.beacon();
     }
 
-    //This is what the app layer will call to listen for a message
-    public String listenForMessage() {
-        return this.listenForMessage(2);
-    }
+    
 
     //This is what the MPR will use to listen for a message
-    public String listenForMessage(int i) {
+    public String listenForMessage() {
         byte[] recieved = new byte[4096];
 
         DatagramPacket receivePacket = new DatagramPacket(recieved, recieved.length);
@@ -60,12 +57,12 @@ public class OLSR {
             String packetInfo = new String(receivePacket.getData());
             parsePacket(packetInfo);
             System.out.println("packet heard: " + packetInfo);
-            if (currentPacketType == 1 && i == 1) {
+            if (currentPacketType == 1) {
                 //Here is where you will call the method that handles the hello message
             	handleHelloMessage(currentMessage);
             	mprs.findMprs(neighborTable);
             	//beacon.setNeighborTable(neighborTable);
-                return currentMessage;
+                return "";
             } else if (currentPacketType == 2) {
                 //check if you are an MPR and then forward if necessary
                 /*IF MPR -> sendMessageAsMPR(packetInfo)*/
@@ -199,7 +196,7 @@ public class OLSR {
 
             String compName;
             int port;
-
+            
             Set<Integer> keys = neighborTable.keySet();
             for (Integer key : keys) {
                 ComputerInfo c;
@@ -416,7 +413,7 @@ public class OLSR {
         String currentBDLink = parser.next();
         currentBDLink = parser.next();
         //get bidirectional links until u is found
-        while (! currentBDLink.equals("u")) {
+        while (! currentBDLink.trim().equals("u")) {
             bLinks.add(Integer.parseInt(currentBDLink));
             currentBDLink = parser.next();
         }
@@ -430,7 +427,7 @@ public class OLSR {
         // at this point unidirectional links should start being parsed
         String currentUDLink = parser.next();
         //get bidirectional links until u is found
-        while (! currentUDLink.equals("m")) {
+        while (! currentUDLink.trim().equals("m")) {
             uLinks.add(Integer.parseInt(currentUDLink));
             currentUDLink = parser.next();
         }
@@ -443,7 +440,11 @@ public class OLSR {
         //gather MPR links
         ArrayList<Integer> mprLinks = new ArrayList<Integer>();
         // at this point unidirectional links should start being parsed
-        String currentMPRLink = parser.next();
+        String currentMPRLink = "";
+        
+        if(parser.hasNext()){
+        	currentMPRLink = parser.next();
+        }
         //get bidirectional links until u is found
         while (parser.hasNext()) {
             mprLinks.add(Integer.parseInt(currentMPRLink));

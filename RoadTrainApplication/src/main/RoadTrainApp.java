@@ -17,7 +17,6 @@ public class RoadTrainApp {
 		this.config_File = config;
 		this.port = port;
 		try{
-			olsr = new OLSR(this.id, port, config);
 			this.setConfigFilePosition();
 		} catch (Exception e){
 			System.out.println(e.toString());
@@ -274,6 +273,7 @@ public class RoadTrainApp {
 				if(Integer.parseInt(buffer_string[2]) == this.port)
 				{
 					this.id = Integer.parseInt(buffer_string[0]);
+					olsr = new OLSR(this.id, port, config_File);
 					if(this.id == 0)
 					{
 						this.setVehicle(true,Integer.parseInt(buffer_string[3]),Integer.parseInt(buffer_string[4]));
