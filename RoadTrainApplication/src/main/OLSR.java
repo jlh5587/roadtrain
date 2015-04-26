@@ -12,8 +12,6 @@ import java.util.Set;
 
 public class OLSR {
 
-    ArrayList<Integer> twoHopNodes;
-
     Hashtable<Integer, TableEntry> cacheTable;
     Hashtable<Integer, NeighborTableEntry> neighborTable;
     Hashtable<Integer, ComputerInfo> computerInfoTable;
@@ -146,7 +144,7 @@ public class OLSR {
 
             //The Hello String should be added to to send the appropriate information to the other nodes.
             String packetInfo = "1," + user + "," + currentSeqNum + "," + user + "," + 0 + ", HELLO, "
-            user, "," + helloMessage;
+            + user + "," + helloMessage;
 
             byte[] sendData = new byte[4096];
             sendData = packetInfo.getBytes();
@@ -343,98 +341,98 @@ public class OLSR {
         return null;
     }
 
-    /**
-     * Hello Message Handling *
-     */
-    public void parseHelloMessage(byte[] hm) {
+    /** HELLO message handling **/
 
-        //Parse hello message info
-        HelloMessage currentHello = bytesToHello(hm);
-        Integer helloSender = currentHello.getSenderName();
-        ArrayList<Integer, NeighborTableEntry> helloNeighbors = currentHello.getNodeNeighbors();
+    public void handleHelloMessage(String helloMessage) {
+        Integer neighborID = getNeighborID(helloMessage);
+        Hashtable<Integer, NeighborStatus> neighborLinks = getNeighborLinks(helloMessage);
 
-        // current HELLO neighbor is unidirectional until self found in HELLO neighbor's list.
-        NeighborTableEntry tableEntry = new NeighborTableEntry(NeighborStatus.UNIDIRECTIONAL);
+        NeighborTableEntry nte = new NeighborTableEntry(NeighborStatus.UNIDIRECTIONAL);
 
-        Set<Integer> keys = helloNeighbors.keySet();
-        ArrayList<Integer> contributedTwoHopNodes = new ArrayList<Integer>();
-
-        //first, determine if node is bidirectional
-        if (helloNeighbors.containsKey(user)) {
-            tableEntry.setStatus(NeighborStatus.BIDIRECTIONAL);
-            if (helloNeighbors.get(user).getStatus() == NeighborStatus.MPR) {
-                //update MPR selector table
-            }
-        } else {
-            tableEntry.setStatus(NeighborStatus.UNIDIRECTIONAL);
+        //only change to bidirectional if self found in table
+        if (neighborLinks.containsKey(user)) {
+            nte.setStatus(NeighborStatus.BIDIRECTIONAL);
         }
 
-        if (tableEntry.getStatus(NeighborStatus(BIDIRECTIONAL))) {
-            for (Integer key : keys) {
-                //if it's a new two-hop node, add to contributed list.
-                if (helloNeighbors.get(key).getStatus() == NeighborStatus.BIDIRECTIONAL
-                        && !neighborTable.containsKey(key)
-                        && !twoHopNodes.contains(key)) {
-                    twoHopNodes.add(key);
-                    contributedTwoHopNodes.add(key);
+        ArrayList<Integer> nte2HopLinks = new ArrayList<Integer>();
+        if (nte.getStatus() == NeighborStatus.BIDIRECTIONAL) {
+            Set<Integer> links = neighborLinks.keySet();
+            for (Integer link : links) {
+                // if current link is bidirectional and is not in local neighbor table, it's a 2-hop node
+                if (link != user
+                        && !neighborTable.contains(link)
+                        && neighborLinks.get(link) == NeighborStatus.BIDIRECTIONAL) {
+                    nte2HopLinks.add(link);
                 }
             }
         }
 
-        //if it contributed any new 2-hop nodes, it's an MPR. Add two-hop nodes that it gives access to.
-        if (contributedTwoHopNodes.size() > 0) {
-            tableEntry.setStatus(NeighborStatus.MPR);
-            tableEntry.setTwoHopNeighbors(contributedTwoHopNodes.toArray(new Integer[contributedTwoHopNodes.size()]));
-        }
+        // convert Integer array list to array and put in NTE structure
+        nte.setTwoHopNeighbors(nte2HopLinks.toArray(new Integer[nte2HopLinks.size()]));
 
-        //update table entry
-        neighborTable.put(helloSender, neighborEntry);
+        neighborTable.put(neighborID, nte);
     }
 
-    public HelloMessage bytesToHello(byte[] helloData) {
-        ByteArrayInputStream bis = new ByteArrayInputStream(helloData);
-        ObjectInput in = null;
-        try {
-            in = new ObjectInputStream(bis);
-            HelloMessage hm_out = in.readObject();
-        } finally {
-            try {
-                bis.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            try {
-                if (in != null) {
-                    in.close();
-                }
-                return o;
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-        //return empty hello object in case data can't be parsed.
-        return new HelloMessage(0, null);
+    private Integer getNeighborID(String helloMessage) {
+        Scanner parser = new Scanner(helloMessage);
+        Integer neighborID = parser.nextInt();
+        parser.close();
+
+        return neighborID;
     }
 
-    private byte[] helloToBytes(HelloMessage hello) {
-        try {
-            byte[] objectBytes;
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutput out = new ObjectOutputStream(bos);
-            out.writeObject(hello);
-            objectBytes = bos.toByteArray();
+    private Hashtable<Integer, NeighborStatus> getNeighborLinks(String hm) {
 
-            out.close();
-            bos.close();
+        Hashtable<Integer, NeighborStatus> neighborLinks = new Hashtable<Integer, NeighborStatus>();
+        Scanner parser = new Scanner(hm);
 
-            return objectBytes;
+        ArrayList<Integer> bLinks = new ArrayList<Integer>();
 
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        Integer neighborID = parser.nextInt();
+
+        //gather bidirectional links
+        Integer currentBDLink = parser.nextInt();
+        //get bidirectional links until u is found
+        while (currentBDLink != 'u') {
+            bLinks.add(currentBDLink);
+            currentBDLink = parser.nextInt();
         }
 
-        // in case converting object fails, return empty byte array.
-        return new byte[0];
-    }
+        for (Integer bLink : bLinks) {
+            neighborLinks.put(bLink, NeighborStatus.BIDIRECTIONAL);
+        }
 
+        //gather unidirectional links
+        ArrayList<Integer> uLinks = new ArrayList<Integer>();
+        // at this point unidirectional links should start being parsed
+        Integer currentUDLink = parser.nextInt();
+        //get bidirectional links until u is found
+        while (currentUDLink != 'm') {
+            uLinks.add(currentUDLink);
+            currentUDLink = parser.nextInt();
+        }
+
+        for (Integer uLink : uLinks) {
+            neighborLinks.put(uLink, NeighborStatus.UNIDIRECTIONAL);
+        }
+
+
+        //gather MPR links
+        ArrayList<Integer> mprLinks = new ArrayList<Integer>();
+        // at this point unidirectional links should start being parsed
+        Integer currentMPRLink = parser.nextInt();
+        //get bidirectional links until u is found
+        while (currentMPRLink != 'm') {
+            mprLinks.add(currentMPRLink);
+            currentMPRLink = parser.nextInt();
+        }
+
+        for (Integer mprLink : mprLinks) {
+            neighborLinks.put(mprLink, NeighborStatus.MPR);
+        }
+
+        parser.close();
+
+        return neighborLinks;
+    }
 }

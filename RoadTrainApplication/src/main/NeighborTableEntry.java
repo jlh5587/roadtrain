@@ -2,6 +2,8 @@ public class NeighborTableEntry {
 
 	NeighborStatus status;
 	Integer[] twoHopNeighbors;
+	Integer sequence_number;
+	Integer timestamp;
 
 	public NeighborTableEntry(NeighborStatus status){
 		this.status = status;
