@@ -56,7 +56,7 @@ public class OLSR {
 
             String packetInfo = new String(receivePacket.getData());
             parsePacket(packetInfo);
-            System.out.println("packet heard: " + packetInfo);
+            //System.out.println("packet heard: " + packetInfo);
             if (currentPacketType == 1) {
                 //Here is where you will call the method that handles the hello message
             	handleHelloMessage(currentMessage);
@@ -222,9 +222,11 @@ private boolean checkShouldCache(){
         try {
         	mprs.findMprs(this.neighborTable);
             //The Hello String should be added to to send the appropriate information to the other nodes.
-            String packetInfo = "1," + user + "," + currentSeqNum + "," + user + "," + 0 + ","
+            String packetInfo = "1," + user + "," + numMessageCreated + "," + user + "," + 0 + ","
             + user +"~"+ helloMessage + "~"+mprs.getHelloMprs();
 
+            numMessageCreated++;
+            
             byte[] sendData = new byte[4096];
             sendData = packetInfo.getBytes();
             String compName = c.getName();

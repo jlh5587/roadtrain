@@ -17,7 +17,7 @@ public class MPR {
 		String r = "";
 		
 		for(int i = 0; i< mprs.size(); i++){
-			r = "," + mprs.get(i);
+			r = "~" + mprs.get(i);
 		}
 		
 		r = "m" + r;
