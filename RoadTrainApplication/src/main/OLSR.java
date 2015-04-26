@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class OLSR {
 
-    Hashtable<Integer, TableEntry> cacheTable;
+	ArrayList<TableEntry> cache;
     Hashtable<Integer, NeighborTableEntry> neighborTable;
     Hashtable<Integer, ComputerInfo> computerInfoTable;
     File configFile;
@@ -29,7 +29,7 @@ public class OLSR {
 
     public OLSR(int user, int port, File configFile) throws SocketException {
 
-        cacheTable = new Hashtable<Integer, TableEntry>();
+        cache = new ArrayList<TableEntry>();
         neighborTable = new Hashtable<Integer, NeighborTableEntry>();
         computerInfoTable = new Hashtable<Integer, ComputerInfo>();
         this.configFile = configFile;
@@ -66,12 +66,15 @@ public class OLSR {
             } else if (currentPacketType == 2) {
                 //check if you are an MPR and then forward if necessary
                 /*IF MPR -> sendMessageAsMPR(packetInfo)*/
-                if (cacheTable.get(currentSender).getSeqNum() <= currentSeqNum) {
-                	if(mprSelector.contains(currentSender)){
+                if(mprSelector.contains(currentSender)){
                 		sendMessageAsMPR(packetInfo);
-                	}
-                    cacheMessage();
                 }
+                
+                checkShouldCache();
+                
+                    
+                //cacheMessage();
+                
                 return currentMessage;
             }
 
@@ -125,18 +128,78 @@ public class OLSR {
 
     //Private methods used to cache, parse and send packets
 
-    private void cacheMessage() {
-        cacheTable.get(currentSender).setLastHop(user);
-        cacheTable.get(currentSender).setMessage(currentMessage);
-        cacheTable.get(currentSender).setNumOfForwards(currentTimesForwarded + 1);
-        messageRec++;
-        if (cacheTable.get(currentSender).getSeqNum() < currentSeqNum - 1) {
-            droppedPackets++;
-            System.out.println("Num of packets recieved: " + messageRec);
-            System.out.println("Dropped Packets: " + droppedPackets);
-        }
-        cacheTable.get(currentSender).setSeqNum(currentSeqNum);
-    }
+    private void populateCache(){
+		cache.add(new TableEntry(currentSender, currentLastHop, currentTimesForwarded, currentSeqNum, currentMessage));
+	}
+    
+    private boolean cacheMessage(){	
+		for(int i = 0; i < cache.size(); i++){
+			if(cache.get(i).getSender() == currentSender){
+				cache.get(i).setMessage(currentMessage);
+				cache.get(i).setLastHop(user);
+				cache.get(i).setNumOfForwards(currentTimesForwarded+1);
+				messageRec++;
+				if(cache.get(i).getSeqNum() < currentSeqNum -1){
+					droppedPackets++;
+					System.out.println("Num of packets recieved: " + messageRec);
+					System.out.println("Dropped Packets: " + droppedPackets);
+					
+				}
+				
+				cache.get(i).setSeqNum(currentSeqNum);
+				return true;
+			}
+		}
+		return false;
+	}
+    
+	
+	private boolean inCache(){
+		boolean in = false;
+		for(int i = 0; i < cache.size(); i++){
+			if(cache.get(i).getSender() == currentSender){
+				in = true;
+			}
+		}
+		return in;
+	}
+	
+	private int getCacheLocation(){
+		int val = -1;
+		for(int i = 0; i < cache.size(); i++){
+			if(cache.get(i).getSender() == currentSender){
+				val = i;
+			}
+		}
+		
+		return val;
+	}
+	
+private boolean checkShouldCache(){
+
+		
+		if(inCache()){
+			int cacheLoc = getCacheLocation();
+		
+			//Checks sequence number. If it's the same, it uses the RBA to determine if it should be forwarded
+			if(currentSeqNum == cache.get(cacheLoc).getSeqNum()){
+				return true;
+				//if the current sequence number is greater, then it automatically caches the message and forwards it.	
+			} else if (currentSeqNum > cache.get(cacheLoc).getSeqNum()){
+					cacheMessage();
+					//forwardMessage();
+					return true;
+			}else{
+				//this is where nothing needs to be done because the sequence num < cached seq num
+				return false;
+			}
+		}else{
+			populateCache();
+			//forwardMessage();
+			return true;
+		}
+		
+	}
 
     private void parsePacket(String packetInfo) {
         Scanner packetScanner = new Scanner(packetInfo);
