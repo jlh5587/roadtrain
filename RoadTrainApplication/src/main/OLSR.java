@@ -10,6 +10,7 @@ import java.util.Hashtable;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Random;
+import java.sql.*;
 
 public class OLSR {
 
@@ -26,6 +27,7 @@ public class OLSR {
     int messageRec, droppedPackets;
     MPR mprs;
     ArrayList<Integer> mprSelector;
+    long startTime;
     //Beacon beacon;
     //Thread b;
 
@@ -44,6 +46,7 @@ public class OLSR {
         mprSelector = new ArrayList<Integer>();
         //this.beacon();
         longestDelay = 0;
+        startTime = System.currentTimeMillis();
     }
 
     
@@ -165,10 +168,13 @@ public class OLSR {
 				messageRec++;
 				if(cache.get(i).getSeqNum() < currentSeqNum -1){
 					droppedPackets++;
+					Timestamp st = new Timestamp(startTime);
+					Timestamp nt = new Timestamp(System.currentTimeMillis());
 					System.out.println("Num of packets recieved: " + messageRec);
 					System.out.println("Dropped Packets: " + droppedPackets);
 					System.out.println("Longest Delay (ms): " + longestDelay);
-					
+					System.out.println("Start time: " + st.toString());
+					System.out.println("Current time: " + nt.toString());
 				}
 				
 				cache.get(i).setSeqNum(currentSeqNum);
