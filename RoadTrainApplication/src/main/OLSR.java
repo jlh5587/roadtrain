@@ -19,6 +19,7 @@ public class OLSR {
     File configFile;
     int user, currentSeqNum, numMessageCreated;
     int currentSender, currentLastHop, currentTimesForwarded, currentPacketType;
+    long currentTime, longestDelay;
     String currentMessage;
     boolean listen;
     DatagramSocket socket;
@@ -42,6 +43,7 @@ public class OLSR {
         mprs = new MPR(user);
         mprSelector = new ArrayList<Integer>();
         //this.beacon();
+        longestDelay = 0;
     }
 
     
@@ -56,7 +58,14 @@ public class OLSR {
             socket.receive(receivePacket);
 
             String packetInfo = new String(receivePacket.getData());
+            long recieveTime = System.currentTimeMillis();
             parsePacket(packetInfo);
+            
+            long delay = recieveTime - currentTime;
+            if(delay>longestDelay){
+            	longestDelay = delay;
+            }
+            
             //System.out.println("packet heard: " + packetInfo);
             if (currentPacketType == 1) {
                 //Here is where you will call the method that handles the hello message
@@ -68,9 +77,13 @@ public class OLSR {
             } else if (currentPacketType == 2) {
                 //check if you are an MPR and then forward if necessary
                 /*IF MPR -> sendMessageAsMPR(packetInfo)*/
-                if(mprSelector.contains(currentSender)){
-                	if(checkShouldCache())
+                if(mprSelector.contains(currentLastHop)){
+                	if(checkShouldCache()){
+                		//String newPacket =currentPacketType+"," +currentSender + ","+currentTime +","+currentSeqNum+","+user+","+(currentTimesForwarded+1)+","+currentMessage;
+                		
                 		sendMessageAsMPR(packetInfo);
+                	}
+                		
                 }else{
                 	checkShouldCache();
                 }
@@ -94,7 +107,7 @@ public class OLSR {
 
     //This is the broadcast method that is called from the app layer
     public void broadcast(String message) {
-        String packetInfo = "2," + user + "," + numMessageCreated + "," + user + "," + 0 + "," + message;
+        String packetInfo = "2," + user + "," +System.currentTimeMillis() +","+ numMessageCreated + "," + user + "," + 0 + "," + message;
         numMessageCreated++;
 
         //We will need to add a check to see if this user is an MPR. If they are, then we will
@@ -154,6 +167,7 @@ public class OLSR {
 					droppedPackets++;
 					System.out.println("Num of packets recieved: " + messageRec);
 					System.out.println("Dropped Packets: " + droppedPackets);
+					System.out.println("Longest Delay (ms): " + longestDelay);
 					
 				}
 				
@@ -233,6 +247,7 @@ private boolean checkShouldCache(){
         // If packet type = 1 then hello message, if 2 then other message
         currentPacketType = packetScanner.nextInt();
         currentSender = packetScanner.nextInt();
+        currentTime = packetScanner.nextLong();
         currentSeqNum = packetScanner.nextInt();
         currentLastHop = packetScanner.nextInt();
         currentTimesForwarded = packetScanner.nextInt();
@@ -246,7 +261,7 @@ private boolean checkShouldCache(){
         try {
         	mprs.findMprs(this.neighborTable);
             //The Hello String should be added to to send the appropriate information to the other nodes.
-            String packetInfo = "1," + user + "," + numMessageCreated + "," + user + "," + 0 + ","
+            String packetInfo = "1," + user + "," +System.currentTimeMillis()+ "," + numMessageCreated + "," + user + "," + 0 + ","
             + user +"~"+ helloMessage;// + "~"+mprs.getHelloMprs();
 
             numMessageCreated++;
