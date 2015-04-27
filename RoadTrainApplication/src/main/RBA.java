@@ -11,6 +11,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
+import java.sql.*;
 
 //import pangolin.compID;
 
@@ -23,7 +24,8 @@ public class RBA {
 	DatagramSocket socket;
 	boolean listen;
 	File configFile;
-	
+	long startTime;
+	long currentTime, longestDelay;
 	
 	public RBA(int currentUser, int port, File configFile) throws SocketException{
 		this.currentUser = currentUser;
@@ -31,6 +33,7 @@ public class RBA {
 		socket = new DatagramSocket(port);
 		listen = true;
 		this.configFile = configFile;
+		longestDelay = 0;
 	}
 	
 	
@@ -72,8 +75,14 @@ public class RBA {
             	socket.receive(receivePacket);
 				
 				String packetInfo = new String(receivePacket.getData());
+				long recieveTime = System.currentTimeMillis();
+				long delay = recieveTime - currentTime;
+	            
 				//System.out.println(packetInfo);
 				parsePacket(packetInfo);
+				if(delay>longestDelay){
+	            	longestDelay = delay;
+	            }
 				//System.out.println("from: " + currentSender + " message: " + currentMessage);
 				checkShouldForward();
 				return currentMessage;	
@@ -95,6 +104,7 @@ public class RBA {
 		
 		//The packet contains sender, lastHop, times forwarded, message
 		currentSender = packetScanner.nextInt();
+		currentTime = packetScanner.nextLong();
 		currentSeqNum = packetScanner.nextInt();
 		currentLastHop = packetScanner.nextInt();
 		currentTimesForwarded = packetScanner.nextInt();
@@ -106,7 +116,7 @@ public class RBA {
 	
 	//Forwards the message to connecting cars.
 	public void forwardMessage(){
-		 String packetInfo = currentSender + ","+ currentSeqNum+","+currentUser+","+(currentTimesForwarded+1)+","+currentMessage;
+		 String packetInfo = currentSender + ","+currentTime+"," +currentSeqNum+","+currentUser+","+(currentTimesForwarded+1)+","+currentMessage;
 		 try{
 			 byte[] sendData = new byte[4096];
 			 sendData = packetInfo.getBytes();
@@ -186,9 +196,13 @@ public class RBA {
 				messageRec++;
 				if(cache.get(i).getSeqNum() < currentSeqNum -1){
 					droppedPackets++;
+					Timestamp st = new Timestamp(startTime);
+					Timestamp nt = new Timestamp(System.currentTimeMillis());
 					System.out.println("Num of packets recieved: " + messageRec);
 					System.out.println("Dropped Packets: " + droppedPackets);
-					
+					System.out.println("Longest Delay (ms): " + longestDelay);
+					System.out.println("Start time: " + st.toString());
+					System.out.println("Current time: " + nt.toString());
 				}
 				
 				cache.get(i).setSeqNum(currentSeqNum);
@@ -327,7 +341,7 @@ public class RBA {
 	}
 	
 	public void broadcast(String message){
-		String packetInfo = currentUser + ","+ numMessageCreated+","+currentUser+","+0+","+message;
+		String packetInfo = currentUser + ","+System.currentTimeMillis()+"," + numMessageCreated+","+currentUser+","+0+","+message;
 		numMessageCreated++;
 		sendNewMessage(packetInfo);
 	}
