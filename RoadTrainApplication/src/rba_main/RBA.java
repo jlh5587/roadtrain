@@ -77,10 +77,12 @@ public class RBA {
 				
 				String packetInfo = new String(receivePacket.getData());
 				long recieveTime = System.currentTimeMillis();
-				long delay = recieveTime - currentTime;
+				//long delay = recieveTime - currentTime;
 	            
 				//System.out.println(packetInfo);
 				parsePacket(packetInfo);
+				
+				long delay = recieveTime - currentTime;
 				if(delay>longestDelay){
 	            	longestDelay = delay;
 	            }
