@@ -34,6 +34,7 @@ public class RBA {
 		listen = true;
 		this.configFile = configFile;
 		longestDelay = 0;
+		currentTime = System.currentTimeMillis();
 	}
 	
 	
