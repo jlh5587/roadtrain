@@ -75,6 +75,7 @@ public class OLSR {
             	handleHelloMessage(currentMessage);
             	mprs.findMprs(neighborTable);
             	checkShouldCache();
+            	System.out.println("Message Recieved: HELLO~" + currentMessage + " - From: " + currentSender);
             	//beacon.setNeighborTable(neighborTable);
                 return "";
             } else if (currentPacketType == 2) {
@@ -83,7 +84,7 @@ public class OLSR {
                 if(mprSelector.contains(currentLastHop)){
                 	if(checkShouldCache()){
                 		//String newPacket =currentPacketType+"," +currentSender + ","+currentTime +","+currentSeqNum+","+user+","+(currentTimesForwarded+1)+","+currentMessage;
-                		
+                		System.out.println("Message Recieved: " + currentMessage + " - From: " + currentSender);
                 		sendMessageAsMPR(packetInfo);
                 	}
                 		
@@ -339,7 +340,7 @@ private boolean checkShouldCache(){
     }
 
     private void sendNewMessage(String packetInfo) {
-
+    	String sentTo = "";
         try {
             byte[] sendData = new byte[4096];
             sendData = packetInfo.getBytes();
@@ -348,6 +349,7 @@ private boolean checkShouldCache(){
             ArrayList<Integer> m = mprs.getMprs();
             
             String compName;
+            
             int port;
 
             for (int i = 0; i < m.size(); i++) {
@@ -362,7 +364,7 @@ private boolean checkShouldCache(){
 
                 compName = c.getName();
                 port = c.getPort();
-
+                sentTo = "  " + m.get(i);
                 //For testing purposes. These IP addresses will need to come from the config file.
                 InetAddress IPAddress;
                 try {
@@ -379,6 +381,9 @@ private boolean checkShouldCache(){
             System.out.println(packetInfo);
             System.out.println(e.toString());
         }
+        
+        
+        System.out.println("Sent to: " + sentTo + "Packet: " + packetInfo);
     }
 
 
