@@ -50,11 +50,12 @@ public class MPR {
 	        		 }
 	        	 }
          	}
+         /**
          if(newMPRS.size() == 0){
         	 for (Integer key : keys) {
         		 newMPRS.add(key);
         	 }
-         }
+         }**/
          mprs = new ArrayList<Integer>(newMPRS);
 	}
 	
